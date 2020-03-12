@@ -22,20 +22,27 @@ public class TabbedPane extends JFrame {
        JPanel jp1 = new JPanel();//This will create the first tab
 
        JPanel jp2 = new JPanel();//This will create the second tab
+       
+       JPanel jp3 = new JPanel();//This will create the 3rd tab
         
          //This creates a non-editable label, sets what the label will read
         //and adds the label to the first tab
        JLabel label1 = new JLabel();
-       label1.setText("This is Tab 1");
+       label1.setText("Tab 1");
        jp1.add(label1);
 
        //This adds the first and second tab to our tabbed pane object and names it
        jtp.addTab("Tab1", jp1);
        jtp.addTab("Tab2", jp2);
+       jtp.addTab("Tab3", jp3);
 
         //This creates a new button called "Press" and adds it to the second tab
        JButton test = new JButton("Press");
        jp2.add(test);
+       
+       JLabel label3 = new JLabel();
+       label3.setText("Tab 3");
+       jp3.add(label3);
 
         //This is an Action Listener which reacts to clicking on 
         //the test button called "Press"
