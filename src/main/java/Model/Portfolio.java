@@ -1,6 +1,10 @@
 package Model;
 
 
+import Controller.FolioTracker;
+import View.FolioPanel;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +12,7 @@ import java.util.Map;
 
 public class Portfolio {
   private String name;
-  private HashMap<String,StockHolding> map=new HashMap<>();
+  public static HashMap<String,StockHolding> map=new HashMap<>();
 
   public Portfolio(String name){
     this.name=name;
@@ -16,17 +20,22 @@ public class Portfolio {
 
 
 
-  public void addStock(String ticker){
-    //TODO connect to server, and get the stock
-    /***
-     * Code for test! Remove later!
-     ***/
+  public static void addStock(String [] stockEntry){
+
+
+    String ticker = String.valueOf(stockEntry[0]);
+    String name = String.valueOf(stockEntry[0]);
+    int shares = Integer.parseInt(stockEntry[1]);
+    double pps = Double.parseDouble(stockEntry[2]);
+
+    System.out.println("I get here");
     ArrayList<StockHolding> list=new ArrayList<>();
-    for(int i=0;i<6;i++) {
-      list.add(new StockHolding(""+i,""+i,i,i));
-    }
-    for(StockHolding s : list) {
+
+     list.add(new StockHolding(ticker, name, shares, pps));
+
+     for(StockHolding s : list) {
       map.put(s.getTicker(), s);
+       System.out.println(map);
     }
 
   }
@@ -47,7 +56,7 @@ public class Portfolio {
     return total;
   }
 
-  public List<StockHolding> getStockList(){
+  public static List<StockHolding> getStockList(){
     return new ArrayList<>(map.values());
   }
 

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class FolioTracker {
-
   // Create instances of the model and other controllers
   private File file;
   //private CustomFileParser parser;
@@ -32,12 +31,12 @@ public class FolioTracker {
   private WelcomePanel welcomePanel;
   private LoginPanel loginPanel;
   private RegisterPanel registerPanel;
-  private HomePanel homePanel;
+  public HomePanel homePanel;
 
 
   private HashMap<String, Portfolio> portfolioMap=new HashMap<>();
 
-  public Portfolio currentSelected=null;
+  public Portfolio currentSelected = null;
 
 
 
@@ -96,17 +95,26 @@ public class FolioTracker {
     Portfolio port1=new Portfolio("First");
     Portfolio port2=new Portfolio("Second");
 
-    portfolioMap.put(port2.getName(),port2);
     portfolioMap.put(port1.getName(),port1);
+    portfolioMap.put(port2.getName(),port2);
+
     currentSelected=port1;
 
-    port1.addStock("test");
-    port2.addStock("test");
+    String stockEntry[] = new String[4];
+    stockEntry[0] = "test";
+    stockEntry[1] = "1";
+    stockEntry[2] = "1";
+    stockEntry[3] = "0";
+
+   port1.addStock(stockEntry);
+    //port2.addStock("test");
 
 
     for(Portfolio p:portfolioMap.values()){
       homePanel.createPanel(p,new AddWatchListener(),new RefreshListener());
     }
+
+
   }
 
 
@@ -142,7 +150,7 @@ public class FolioTracker {
     @Override
     public void mouseClicked(MouseEvent e) {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
-      System.out.println(homePanel.getSelectedIndex());
+      System.out.println("the selected index" + homePanel.getSelectedIndex());
     }
 
     @Override
@@ -175,12 +183,33 @@ public class FolioTracker {
   public class AddStockListener implements  ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
+
       String ticker = addWatchWindow.getTicker();
-      int amount = addWatchWindow.getEnteredAmount();
+      String amount = String.valueOf(addWatchWindow.getEnteredAmount());
       //TODO input validation
       //TODO add logic to retrieve a stock for a given ticker from server, add it to portfolio and update our local file
-      System.out.println(ticker + " " + amount);
+
+      String cost = "";
+
+      try {
+        cost = StrathQuoteServer.getLastValue(ticker);
+
+      } catch (WebsiteDataException e1) {
+        System.out.println("Ticker doesn't exist");
+      } catch (NoSuchTickerException e1) {
+        System.out.println("Ticker doesn't exist");
+      }
       addWatchWindow.dispose();
+
+      String stockEntry[] = new String[4];
+
+      stockEntry[0] = ticker;
+      stockEntry[1] = amount;
+      stockEntry[2] = cost;
+      stockEntry[3] = String.valueOf(homePanel.getSelectedIndex());
+
+      Portfolio.addStock(stockEntry);
+
     }
   }
 

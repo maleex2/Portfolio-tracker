@@ -12,7 +12,7 @@ public class StockHolding {
   private Timestamp latestUpdate;
   private double lastValue;
 
-  public StockHolding(String ticker,String name, int shares, double pricePerShare) {
+  public StockHolding(String ticker, String name, int shares, double pricePerShare) {
     setTicker(ticker);
     setName(name);
     setShares(shares);
