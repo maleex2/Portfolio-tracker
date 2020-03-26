@@ -1,18 +1,16 @@
 package Model;
 
 
-import Controller.FolioTracker;
-import View.FolioPanel;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 
 public class Portfolio {
   private String name;
-  public static HashMap<String,StockHolding> map=new HashMap<>();
+  //private HashMap<String,StockHolding> map=new HashMap<>();
+  private List<StockHolding> list=new ArrayList<StockHolding>();
 
   public Portfolio(String name){
     this.name=name;
@@ -20,7 +18,7 @@ public class Portfolio {
 
 
 
-  public static void addStock(String [] stockEntry){
+  public void addStock(String [] stockEntry){
 
 
     String ticker = String.valueOf(stockEntry[0]);
@@ -29,35 +27,36 @@ public class Portfolio {
     double pps = Double.parseDouble(stockEntry[2]);
 
     System.out.println("I get here");
-    ArrayList<StockHolding> list=new ArrayList<>();
-
-     list.add(new StockHolding(ticker, name, shares, pps));
-
-     for(StockHolding s : list) {
-      map.put(s.getTicker(), s);
-       System.out.println(map);
+    StockHolding stock=new StockHolding(ticker, name, shares, pps);
+    if(!list.contains(stock)) {
+      System.out.println("Doesn't containt?!");
+      list.add(stock);
     }
+
+    for(StockHolding s:list){
+      System.out.println(s);
+    }
+    System.out.println("AND: "+stock);
+
 
   }
 
   public void removeStock(String ticker){
-    map.remove(ticker);
+    //TODO find stock in list by ticker and remove
+
   }
 
   public void refreshStocks(){
-
+   //TODO I would add some sort of connection to server here and check if stock was changed, if yes -> update our list and fire a tableDataChange in tableModel
   }
 
   public double getTotalValue() {
-    double total = 0;
-    for (StockHolding stock : map.values()) {
-      total += stock.getTotalValue();
-    }
-    return total;
+   //TODO calculate and return the total number of all total values from all the stocks in a list
+    return 0;
   }
 
-  public static List<StockHolding> getStockList(){
-    return new ArrayList<>(map.values());
+  public List<StockHolding> getStockList(){
+    return list;
   }
 
   public String getName(){

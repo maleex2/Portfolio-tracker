@@ -7,19 +7,25 @@ import Model.StockHolding;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
 
 
 public class FolioPanel extends JPanel {
 
+  private String name;
   private JPanel mainCard = new JPanel(new BorderLayout(0, 40));
   JPanel buttons=new JPanel();
   JTable table;
   JButton addWatch=new JButton("Add Watch");
   JButton refresh=new JButton("Update");
+  public FolioPanelTableModel tableModel;
 
-  public FolioPanel(List<StockHolding> data){
-    table=new JTable(new FolioPanelTableModel(data));
+  public FolioPanel(String name,List<StockHolding> data){
+    this.name=name;
+    tableModel=new FolioPanelTableModel(data);
+    table=new JTable(tableModel);
+    table.setAutoCreateRowSorter(true);
 
     table.setRowHeight(30);
     table.setPreferredScrollableViewportSize(new Dimension(900, 400));
@@ -48,6 +54,9 @@ public class FolioPanel extends JPanel {
     refresh.addActionListener(actionListener);
   }
 
+  public String getName(){
+    return this.name;
+  }
 
 
 

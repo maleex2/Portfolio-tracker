@@ -86,4 +86,27 @@ public class StockHolding {
      return getTicker()+" "+getName()+" "+getShares()+" "+getPricePerShare()+" "+getTotalValue();
   }
 
+  /*
+   private String ticker;
+  private String name;
+  private int shares;
+  private double pricePerShare=0;
+  private double totalValue;
+  private Timestamp latestUpdate;
+  private double lastValue;
+   */
+
+
+  @Override
+  public boolean equals(Object o){
+    StockHolding stock=(StockHolding)o;
+    if(this.ticker.compareTo(stock.ticker)==0){
+      if(this.name.compareTo(stock.name)==0){
+        if(this.shares==stock.shares){
+          return this.pricePerShare == stock.pricePerShare;
+        }
+      }
+    }
+    return false;
+  }
 }

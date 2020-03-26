@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HomePanel extends JTabbedPane {
-  HashMap<String, FolioPanel> map=new HashMap<>();
+
 
   public HomePanel(MouseListener mouseListener){
     this.addMouseListener(mouseListener);
@@ -19,11 +19,11 @@ public class HomePanel extends JTabbedPane {
 
 
   public void createPanel(Portfolio p,ActionListener addWatchActionListener, ActionListener refreshActionListener) {
-    FolioPanel fp=new FolioPanel(p.getStockList());
+    FolioPanel fp=new FolioPanel(p.getName(),p.getStockList());
     fp.addAddWatchListener(addWatchActionListener);
     fp.addRefreshListener(refreshActionListener);
-    map.put(p.getName(),fp);
     add(p.getName(),fp);
+
     }
   }
 

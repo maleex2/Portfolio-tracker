@@ -36,7 +36,7 @@ public class FolioTracker {
 
   private HashMap<String, Portfolio> portfolioMap=new HashMap<>();
 
-  public Portfolio currentSelected = null;
+  public FolioPanel currentSelected = null;
 
 
 
@@ -88,7 +88,7 @@ public class FolioTracker {
     this.addWatchWindow.addClearActionListener(new ClearListener());
 
 
-    //TODO add logic to pull stocks and create portfolios
+
     /**
      * Test Code
      */
@@ -98,7 +98,8 @@ public class FolioTracker {
     portfolioMap.put(port1.getName(),port1);
     portfolioMap.put(port2.getName(),port2);
 
-    currentSelected=port1;
+
+
 
     String stockEntry[] = new String[4];
     stockEntry[0] = "test";
@@ -112,7 +113,11 @@ public class FolioTracker {
 
     for(Portfolio p:portfolioMap.values()){
       homePanel.createPanel(p,new AddWatchListener(),new RefreshListener());
+
     }
+
+
+    currentSelected=(FolioPanel) homePanel.getSelectedComponent();
 
 
   }
@@ -150,7 +155,10 @@ public class FolioTracker {
     @Override
     public void mouseClicked(MouseEvent e) {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
-      System.out.println("the selected index" + homePanel.getSelectedIndex());
+
+
+      currentSelected=(FolioPanel) homePanel.getSelectedComponent();
+      System.out.println("the selected name" + currentSelected.getName());
     }
 
     @Override
@@ -208,7 +216,12 @@ public class FolioTracker {
       stockEntry[2] = cost;
       stockEntry[3] = String.valueOf(homePanel.getSelectedIndex());
 
-      Portfolio.addStock(stockEntry);
+      //TODO we need to store somewhere as a localvariable
+
+      System.out.println(currentSelected);
+      portfolioMap.get(currentSelected.getName()).addStock(stockEntry);
+      currentSelected.tableModel.fireTableChangeOnAddRow();
+
 
     }
   }
