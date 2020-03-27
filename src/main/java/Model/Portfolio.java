@@ -2,6 +2,9 @@ package Model;
 
 
 
+//import sun.invoke.empty.Empty;
+
+import javax.swing.event.TableModelEvent;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -11,6 +14,7 @@ public class Portfolio {
   private String name;
   //private HashMap<String,StockHolding> map=new HashMap<>();
   private List<StockHolding> list=new ArrayList<StockHolding>();
+  public FolioPanelTableModel tableModel;
 
   public Portfolio(String name){
     this.name=name;
@@ -20,23 +24,29 @@ public class Portfolio {
 
   public void addStock(String [] stockEntry){
 
+    if( String.valueOf(stockEntry[0]).equals("")){
+      System.out.println("Empty ticker");
+      //display error alert
+    }else{
+      String ticker = String.valueOf(stockEntry[0]);
+      String name = String.valueOf(stockEntry[0]);
+      int shares = Integer.parseInt(stockEntry[1]);
+      double pps = Double.parseDouble(stockEntry[2]);
 
-    String ticker = String.valueOf(stockEntry[0]);
-    String name = String.valueOf(stockEntry[0]);
-    int shares = Integer.parseInt(stockEntry[1]);
-    double pps = Double.parseDouble(stockEntry[2]);
+      System.out.println("I get here");
+      StockHolding stock=new StockHolding(ticker, name, shares, pps);
+      if(!list.contains(stock)) {
+        System.out.println("Doesn't contain it?!");
+        list.add(stock);
+      }
 
-    System.out.println("I get here");
-    StockHolding stock=new StockHolding(ticker, name, shares, pps);
-    if(!list.contains(stock)) {
-      System.out.println("Doesn't containt?!");
-      list.add(stock);
+      for(StockHolding s:list){
+        System.out.println(s);
+      }
+      System.out.println("AND: "+stock);
     }
 
-    for(StockHolding s:list){
-      System.out.println(s);
-    }
-    System.out.println("AND: "+stock);
+
 
 
   }
@@ -46,8 +56,31 @@ public class Portfolio {
 
   }
 
-  public void refreshStocks(){
+  public  void refreshStocks(){
    //TODO I would add some sort of connection to server here and check if stock was changed, if yes -> update our list and fire a tableDataChange in tableModel
+    System.out.println("refresh is called!");
+    int temp = 0;
+    for(StockHolding stock : list){
+      double originalPPS = stock.getPricePerShare();
+      double newPPS = 0;
+      try {
+        newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
+      } catch (WebsiteDataException e) {
+        e.printStackTrace();
+      } catch (NoSuchTickerException e) {
+        e.printStackTrace();
+      }
+
+      if(newPPS != originalPPS){
+        stock.setPricePerShare(newPPS);
+        tableModel.fireTableDataChanged();
+
+      }
+
+      temp++;
+    }
+
+
   }
 
   public double getTotalValue() {

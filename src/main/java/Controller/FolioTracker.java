@@ -34,6 +34,7 @@ public class FolioTracker {
   public HomePanel homePanel;
 
 
+
   private HashMap<String, Portfolio> portfolioMap=new HashMap<>();
 
   public FolioPanel currentSelected = null;
@@ -99,8 +100,6 @@ public class FolioTracker {
     portfolioMap.put(port2.getName(),port2);
 
 
-
-
     String stockEntry[] = new String[4];
     stockEntry[0] = "test";
     stockEntry[1] = "1";
@@ -157,7 +156,7 @@ public class FolioTracker {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
 
 
-      currentSelected=(FolioPanel) homePanel.getSelectedComponent();
+      currentSelected=(FolioPanel)homePanel.getSelectedComponent();
       System.out.println("the selected name" + currentSelected.getName());
     }
 
@@ -191,11 +190,14 @@ public class FolioTracker {
   public class AddStockListener implements  ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
-
+       int validTicker = 0;
       String ticker = addWatchWindow.getTicker();
       String amount = String.valueOf(addWatchWindow.getEnteredAmount());
-      //TODO input validation
-      //TODO add logic to retrieve a stock for a given ticker from server, add it to portfolio and update our local file
+
+      if(ticker.equals("")){
+        JOptionPane.showMessageDialog(null, "This isnt valid!!");
+      }
+
 
       String cost = "";
 
@@ -203,9 +205,11 @@ public class FolioTracker {
         cost = StrathQuoteServer.getLastValue(ticker);
 
       } catch (WebsiteDataException e1) {
-        System.out.println("Ticker doesn't exist");
+        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
+        validTicker = 1;
       } catch (NoSuchTickerException e1) {
-        System.out.println("Ticker doesn't exist");
+        validTicker = 1;
+        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
       }
       addWatchWindow.dispose();
 
@@ -218,10 +222,12 @@ public class FolioTracker {
 
       //TODO we need to store somewhere as a localvariable
 
+      if(!ticker.equals("") || validTicker == 0){
       System.out.println(currentSelected);
       portfolioMap.get(currentSelected.getName()).addStock(stockEntry);
       currentSelected.tableModel.fireTableChangeOnAddRow();
 
+      }
 
     }
   }
@@ -236,6 +242,9 @@ public class FolioTracker {
   public class RefreshListener implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e){
+      System.out.println("Refresh Pressed!");
+      System.out.println(portfolioMap.get(currentSelected.getName()));
+      currentSelected.tableModel.fireTableChangeOnAddRow();
 
     }
   }
