@@ -35,7 +35,7 @@ public class FolioTracker {
 
 
 
-  private HashMap<String, Portfolio> portfolioMap=new HashMap<>();
+  public HashMap<String, Portfolio> portfolioMap=new HashMap<>();
 
   public FolioPanel currentSelected = null;
 
