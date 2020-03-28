@@ -242,10 +242,14 @@ public class FolioTracker {
   public class RefreshListener implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e){
-      System.out.println("Refresh Pressed!");
-      System.out.println(portfolioMap.get(currentSelected.getName()));
-      currentSelected.tableModel.fireTableChangeOnAddRow();
-
+      try {
+        portfolioMap.get(currentSelected.getName()).refreshStocks();
+        currentSelected.tableModel.fireTableChangeOnAddRow();
+      } catch (WebsiteDataException ex) {
+        ex.printStackTrace();
+      } catch (NoSuchTickerException ex) {
+        ex.printStackTrace();
+      }
     }
   }
 
