@@ -1,6 +1,6 @@
 package Model;
 
-class NoSuchTickerException extends Exception {
+public class NoSuchTickerException extends Exception {
   NoSuchTickerException() {
   }
 

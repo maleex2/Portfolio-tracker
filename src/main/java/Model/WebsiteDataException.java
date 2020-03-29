@@ -1,6 +1,6 @@
 package Model;
 
-class WebsiteDataException extends Exception {
+public class  WebsiteDataException extends Exception {
   WebsiteDataException() {
   }
 

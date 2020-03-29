@@ -1,9 +1,13 @@
 package Model;
 
 import javax.swing.*;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FolioPanelTableModel extends AbstractTableModel {
 
@@ -17,6 +21,8 @@ public class FolioPanelTableModel extends AbstractTableModel {
   private static File NEUTRAL = new File(classLoader.getResource(neutralName).getFile());
 
   private List<StockHolding> stockList;
+
+
   public FolioPanelTableModel(List<StockHolding> list){
     super();
     this.stockList=list;
@@ -57,9 +63,12 @@ public class FolioPanelTableModel extends AbstractTableModel {
   @Override
   //Columns {"Ticket","Name","Shares","PPS","Total"};
   public Object getValueAt(int rowIndex, int columnIndex) {
+
+
     Object o;
     switch(columnIndex){
       case 0:
+
         o=stockList.get(rowIndex).getTicker();
         break;
       case 1:
@@ -69,10 +78,10 @@ public class FolioPanelTableModel extends AbstractTableModel {
         o=stockList.get(rowIndex).getShares();
         break;
       case 3:
-          o=stockList.get(rowIndex).getPricePerShare();
+        o=stockList.get(rowIndex).getPricePerShare();
         break;
       case 4:
-        if(stockList.get(rowIndex).growSinceLastTime() >0){
+        if( stockList.get(rowIndex).growSinceLastTime() >0){
           o=new ImageIcon(GREEN.getAbsolutePath());
         }else if(stockList.get(rowIndex).growSinceLastTime() <0){
           o=new ImageIcon(RED.getAbsolutePath());
@@ -94,9 +103,11 @@ public class FolioPanelTableModel extends AbstractTableModel {
     switch(col){
       case 0:
         stockList.get(row).setTicker((String)value);
+
         break;
       case 1:
-        stockList.get(row).setName((String) value);
+        stockList.get(row).setName((String)value);
+
         break;
       case 2:
         stockList.get(row).setShares((int)value);
@@ -111,11 +122,14 @@ public class FolioPanelTableModel extends AbstractTableModel {
   public boolean isCellEditable(int rowIndex, int columnIndex)
   {
     if(columnIndex==1 || columnIndex==3) {
-      fireTableRowsUpdated(rowIndex,4);
       return true;
     }else{
       return false;
     }
+  }
+
+  public void fireTableChangeOnAddRow(){
+    this.fireTableRowsInserted(stockList.size()-1,stockList.size()-1);
   }
 
 

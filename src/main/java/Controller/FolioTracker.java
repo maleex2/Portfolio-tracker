@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class FolioTracker {
-
   // Create instances of the model and other controllers
   private File file;
   //private CustomFileParser parser;
@@ -32,12 +31,13 @@ public class FolioTracker {
   private WelcomePanel welcomePanel;
   private LoginPanel loginPanel;
   private RegisterPanel registerPanel;
-  private HomePanel homePanel;
+  public HomePanel homePanel;
 
 
-  private HashMap<String, Portfolio> portfolioMap=new HashMap<>();
 
-  public Portfolio currentSelected=null;
+  public HashMap<String, Portfolio> portfolioMap=new HashMap<>();
+
+  public FolioPanel currentSelected = null;
 
 
 
@@ -89,24 +89,36 @@ public class FolioTracker {
     this.addWatchWindow.addClearActionListener(new ClearListener());
 
 
-    //TODO add logic to pull stocks and create portfolios
+
     /**
      * Test Code
      */
     Portfolio port1=new Portfolio("First");
     Portfolio port2=new Portfolio("Second");
 
-    portfolioMap.put(port2.getName(),port2);
     portfolioMap.put(port1.getName(),port1);
-    currentSelected=port1;
+    portfolioMap.put(port2.getName(),port2);
 
-    port1.addStock("test");
-    port2.addStock("test");
+
+    String stockEntry[] = new String[4];
+    stockEntry[0] = "test";
+    stockEntry[1] = "1";
+    stockEntry[2] = "1";
+    stockEntry[3] = "0";
+
+   //port1.addStock(stockEntry);
+    //port2.addStock("test");
 
 
     for(Portfolio p:portfolioMap.values()){
       homePanel.createPanel(p,new AddWatchListener(),new RefreshListener());
+
     }
+
+
+    currentSelected=(FolioPanel) homePanel.getSelectedComponent();
+
+
   }
 
 
@@ -142,7 +154,10 @@ public class FolioTracker {
     @Override
     public void mouseClicked(MouseEvent e) {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
-      System.out.println(homePanel.getSelectedIndex());
+
+
+      currentSelected=(FolioPanel)homePanel.getSelectedComponent();
+      System.out.println("the selected name" + currentSelected.getName());
     }
 
     @Override
@@ -175,12 +190,45 @@ public class FolioTracker {
   public class AddStockListener implements  ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
+       int validTicker = 0;
       String ticker = addWatchWindow.getTicker();
-      int amount = addWatchWindow.getEnteredAmount();
-      //TODO input validation
-      //TODO add logic to retrieve a stock for a given ticker from server, add it to portfolio and update our local file
-      System.out.println(ticker + " " + amount);
+      String amount = String.valueOf(addWatchWindow.getEnteredAmount());
+
+      if(ticker.equals("")){
+        JOptionPane.showMessageDialog(null, "This isnt valid!!");
+      }
+
+
+      String cost = "";
+
+      try {
+        cost = StrathQuoteServer.getLastValue(ticker);
+
+      } catch (WebsiteDataException e1) {
+        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
+        validTicker = 1;
+      } catch (NoSuchTickerException e1) {
+        validTicker = 1;
+        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
+      }
       addWatchWindow.dispose();
+
+      String stockEntry[] = new String[4];
+
+      stockEntry[0] = ticker;
+      stockEntry[1] = amount;
+      stockEntry[2] = cost;
+      stockEntry[3] = String.valueOf(homePanel.getSelectedIndex());
+
+      //TODO we need to store somewhere as a localvariable
+
+      if(!ticker.equals("") || validTicker == 0){
+      System.out.println(currentSelected);
+      portfolioMap.get(currentSelected.getName()).addStock(stockEntry);
+      currentSelected.tableModel.fireTableChangeOnAddRow();
+
+      }
+
     }
   }
 
@@ -194,7 +242,14 @@ public class FolioTracker {
   public class RefreshListener implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e){
-
+      try {
+        portfolioMap.get(currentSelected.getName()).refreshStocks();
+        currentSelected.tableModel.fireTableChangeOnAddRow();
+      } catch (WebsiteDataException ex) {
+        ex.printStackTrace();
+      } catch (NoSuchTickerException ex) {
+        ex.printStackTrace();
+      }
     }
   }
 
