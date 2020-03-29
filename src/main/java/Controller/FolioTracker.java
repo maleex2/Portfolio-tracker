@@ -106,7 +106,7 @@ public class FolioTracker {
     stockEntry[2] = "1";
     stockEntry[3] = "0";
 
-   port1.addStock(stockEntry);
+   //port1.addStock(stockEntry);
     //port2.addStock("test");
 
 
