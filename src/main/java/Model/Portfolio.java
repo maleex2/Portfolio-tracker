@@ -5,6 +5,7 @@ package Model;
 //import sun.invoke.empty.Empty;
 
 import javax.swing.event.TableModelEvent;
+import javax.xml.ws.WebServiceException;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -56,22 +57,19 @@ public class Portfolio {
 
   }
 
-  public  void refreshStocks(){
+  public  void refreshStocks() throws NoSuchTickerException, WebsiteDataException {
    //TODO I would add some sort of connection to server here and check if stock was changed, if yes -> update our list and fire a tableDataChange in tableModel
     System.out.println("refresh is called!");
     int temp = 0;
     for(StockHolding stock : list){
       double originalPPS = stock.getPricePerShare();
       double newPPS = 0;
-      try {
-        newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
-      } catch (WebsiteDataException e) {
-        e.printStackTrace();
-      } catch (NoSuchTickerException e) {
-        e.printStackTrace();
-      }
+      System.out.println("Getting value for "+stock.getTicker());
+      newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
+
 
       if(newPPS != originalPPS){
+        System.out.println("Price changed");
         stock.setPricePerShare(newPPS);
         tableModel.fireTableDataChanged();
 
