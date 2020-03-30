@@ -102,9 +102,6 @@ public class StockHolding {
     StockHolding stock=(StockHolding)o;
     if(this.ticker.compareTo(stock.ticker)==0){
       if(this.name.compareTo(stock.name)==0){
-        if(this.shares==stock.shares){
-          return this.pricePerShare == stock.pricePerShare;
-        }
       }
     }
     return false;
