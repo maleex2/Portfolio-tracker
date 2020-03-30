@@ -4,6 +4,7 @@ package Model;
 
 //import sun.invoke.empty.Empty;
 
+import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.xml.ws.WebServiceException;
 import java.util.ArrayList;
@@ -52,13 +53,31 @@ public class Portfolio {
 
   }
 
-  public void removeStock(String ticker){
+  public void removeStock(String tickerName){
     //TODO find stock in list by ticker and remove
+    System.out.println("remove is called");
+    int removed = 0;
+    List<StockHolding> toRemove = new ArrayList<StockHolding>();
+
+    for(StockHolding stock : list){
+      if(stock.getName().equals(tickerName)){
+       toRemove.add(stock);
+        removed = 1;
+      }
+    }
+
+    if(!toRemove.isEmpty()){
+      list.remove(toRemove.get(0));
+    }
+
+
+    if(removed == 0){
+      JOptionPane.showMessageDialog(null, "There is no ticker with that name, nothing has been removed.");
+    }
 
   }
 
   public  void refreshStocks() throws NoSuchTickerException, WebsiteDataException {
-   //TODO I would add some sort of connection to server here and check if stock was changed, if yes -> update our list and fire a tableDataChange in tableModel
     System.out.println("refresh is called!");
     int temp = 0;
     for(StockHolding stock : list){

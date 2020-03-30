@@ -17,7 +17,8 @@ public class FolioPanel extends JPanel {
   private JPanel mainCard = new JPanel(new BorderLayout(0, 40));
   JPanel buttons=new JPanel();
   JTable table;
-  JButton addWatch=new JButton("Add Watch");
+  JButton removeStock = new JButton("Remove Stock");
+  JButton addWatch=new JButton("Add Stock");
   JButton refresh=new JButton("Update");
   public FolioPanelTableModel tableModel;
 
@@ -37,6 +38,7 @@ public class FolioPanel extends JPanel {
 
     addWatch.setAlignmentY(Component.BOTTOM_ALIGNMENT);
     refresh.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+    buttons.add(removeStock);
     buttons.add(addWatch);
     buttons.add(refresh);
     buttons.setAlignmentY(Component.BOTTOM_ALIGNMENT);
@@ -45,6 +47,8 @@ public class FolioPanel extends JPanel {
     add(mainCard);
 
   }
+
+  public void addRemoveStockListener(ActionListener actionListener){removeStock.addActionListener(actionListener);}
 
   public void addAddWatchListener(ActionListener actionListener){
     addWatch.addActionListener(actionListener);

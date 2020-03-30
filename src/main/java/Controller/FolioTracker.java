@@ -26,6 +26,7 @@ public class FolioTracker {
   // Create instances for each of GUI panels
   private MainWindow view;
   private AddWatchWindow addWatchWindow;
+  private  RemoveStockWindow removeStockWindow;
   private JPanel card;
   private CardLayout cardLayout;
   private WelcomePanel welcomePanel;
@@ -88,6 +89,9 @@ public class FolioTracker {
     this.addWatchWindow.addSaveActionListener(new AddStockListener());
     this.addWatchWindow.addClearActionListener(new ClearListener());
 
+    this.removeStockWindow = new RemoveStockWindow();
+    this.removeStockWindow.addRemoveActionListener(new RemoveStockListener());
+    this.removeStockWindow.addClearActionListener(new ClearRemoveListener());
 
 
     /**
@@ -111,7 +115,7 @@ public class FolioTracker {
 
 
     for(Portfolio p:portfolioMap.values()){
-      homePanel.createPanel(p,new AddWatchListener(),new RefreshListener());
+      homePanel.createPanel(p,new RemoveStocksListener() ,new AddWatchListener(),new RefreshListener());
 
     }
 
@@ -178,6 +182,13 @@ public class FolioTracker {
 
   }
 
+  public class ClearRemoveListener implements ActionListener{
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      addWatchWindow.clear();
+    }
+  }
+
 
   public class ClearListener implements ActionListener{
     @Override
@@ -197,8 +208,6 @@ public class FolioTracker {
       if(ticker.equals("")){
         JOptionPane.showMessageDialog(null, "This isnt valid!!");
       }
-
-
       String cost = "";
 
       try {
@@ -231,6 +240,37 @@ public class FolioTracker {
 
     }
   }
+
+  public class RemoveStockListener implements ActionListener{
+    @Override
+    public void actionPerformed(ActionEvent e){
+      int validName = 0;
+      String tickerName = removeStockWindow.getTickerName();
+
+      if(tickerName.equals("")){
+        JOptionPane.showMessageDialog(null,"You never entered anything.");
+      }
+
+      removeStockWindow.dispose();
+
+      if(tickerName!=""){
+        portfolioMap.get(currentSelected.getName()).removeStock(tickerName);
+        currentSelected.tableModel.fireTableStructureChanged();
+      }
+
+
+
+    }
+  }
+
+
+  public class RemoveStocksListener implements ActionListener{
+    @Override
+    public void actionPerformed(ActionEvent e){
+      removeStockWindow.setVisible(true);
+    }
+  }
+
 
   public class AddWatchListener implements ActionListener{
     @Override
