@@ -3,6 +3,7 @@ package View;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
 import java.text.NumberFormat;
 
 public class AddWatchWindow extends JFrame {
@@ -36,6 +37,8 @@ public class AddWatchWindow extends JFrame {
 
 
 
+
+
     SpringUtilities.makeCompactGrid(panel,
             3, 2, //rows, cols
             6, 6,        //initX, initY
@@ -52,6 +55,11 @@ public class AddWatchWindow extends JFrame {
 
   public void addClearActionListener(ActionListener actionListener){
     clearButton.addActionListener(actionListener);
+  }
+
+  public void onEnter(){
+    getRootPane().setDefaultButton(saveButton);
+    saveButton.requestFocus();
   }
   public String getTicker(){
     return loginField.getText();

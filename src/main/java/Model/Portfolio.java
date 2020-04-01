@@ -24,34 +24,20 @@ public class Portfolio {
 
 
 
-  public void addStock(String [] stockEntry){
-
-    if( String.valueOf(stockEntry[0]).equals("")){
-      System.out.println("Empty ticker");
+  public void addStock(StockHolding stock) {
+    if (stock.getName().equals("")) {
       //display error alert
-    }else{
-      String ticker = String.valueOf(stockEntry[0]);
-      String name = String.valueOf(stockEntry[0]);
-      int shares = Integer.parseInt(stockEntry[1]);
-      double pps = Double.parseDouble(stockEntry[2]);
+    } else {
 
-      System.out.println("I get here");
-      StockHolding stock=new StockHolding(ticker, name, shares, pps);
-      if(!list.contains(stock)) {
-        System.out.println("Doesn't contain it?!");
+      if (!list.contains(stock)) {
+        list.add(stock);
+      } else {
+        list.remove(stock);
         list.add(stock);
       }
-
-      for(StockHolding s:list){
-        System.out.println(s);
-      }
-      System.out.println("AND: "+stock);
     }
-
-
-
-
   }
+
 
   public void removeStock(String tickerName){
     //TODO find stock in list by ticker and remove

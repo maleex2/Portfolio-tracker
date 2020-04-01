@@ -121,7 +121,7 @@ public class FolioPanelTableModel extends AbstractTableModel {
 
   public boolean isCellEditable(int rowIndex, int columnIndex)
   {
-    if(columnIndex==1 || columnIndex==3) {
+    if(columnIndex==1 ) {
       return true;
     }else{
       return false;
@@ -131,6 +131,12 @@ public class FolioPanelTableModel extends AbstractTableModel {
   public void fireTableChangeOnAddRow(){
     this.fireTableRowsInserted(stockList.size()-1,stockList.size()-1);
   }
+
+
+  public List<StockHolding> getTableModelStockList(){
+    return stockList;
+  }
+
 
 
 }
