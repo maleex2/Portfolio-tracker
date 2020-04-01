@@ -4,6 +4,7 @@ package Model;
 
 //import sun.invoke.empty.Empty;
 
+import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.xml.ws.WebServiceException;
 import java.util.ArrayList;
@@ -23,42 +24,46 @@ public class Portfolio {
 
 
 
-  public void addStock(String [] stockEntry){
-
-    if( String.valueOf(stockEntry[0]).equals("")){
-      System.out.println("Empty ticker");
+  public void addStock(StockHolding stock) {
+    if (stock.getName().equals("")) {
       //display error alert
-    }else{
-      String ticker = String.valueOf(stockEntry[0]);
-      String name = String.valueOf(stockEntry[0]);
-      int shares = Integer.parseInt(stockEntry[1]);
-      double pps = Double.parseDouble(stockEntry[2]);
+    } else {
 
-      System.out.println("I get here");
-      StockHolding stock=new StockHolding(ticker, name, shares, pps);
-      if(!list.contains(stock)) {
-        System.out.println("Doesn't contain it?!");
+      if (!list.contains(stock)) {
+        list.add(stock);
+      } else {
+        list.remove(stock);
         list.add(stock);
       }
+    }
+  }
 
-      for(StockHolding s:list){
-        System.out.println(s);
+
+  public void removeStock(String tickerName){
+    //TODO find stock in list by ticker and remove
+    System.out.println("remove is called");
+    int removed = 0;
+    List<StockHolding> toRemove = new ArrayList<StockHolding>();
+
+    for(StockHolding stock : list){
+      if(stock.getName().equals(tickerName)){
+       toRemove.add(stock);
+        removed = 1;
       }
-      System.out.println("AND: "+stock);
+    }
+
+    if(!toRemove.isEmpty()){
+      list.remove(toRemove.get(0));
     }
 
 
-
-
-  }
-
-  public void removeStock(String ticker){
-    //TODO find stock in list by ticker and remove
+    if(removed == 0){
+      JOptionPane.showMessageDialog(null, "There is no ticker with that name, nothing has been removed.");
+    }
 
   }
 
   public  void refreshStocks() throws NoSuchTickerException, WebsiteDataException {
-   //TODO I would add some sort of connection to server here and check if stock was changed, if yes -> update our list and fire a tableDataChange in tableModel
     System.out.println("refresh is called!");
     int temp = 0;
     for(StockHolding stock : list){

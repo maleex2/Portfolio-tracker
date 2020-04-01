@@ -90,6 +90,8 @@ public class FolioTracker {
 
 
 
+
+
     /**
      * Test Code
      */
@@ -100,18 +102,8 @@ public class FolioTracker {
     portfolioMap.put(port2.getName(),port2);
 
 
-    String stockEntry[] = new String[4];
-    stockEntry[0] = "test";
-    stockEntry[1] = "1";
-    stockEntry[2] = "1";
-    stockEntry[3] = "0";
-
-   //port1.addStock(stockEntry);
-    //port2.addStock("test");
-
-
     for(Portfolio p:portfolioMap.values()){
-      homePanel.createPanel(p,new AddWatchListener(),new RefreshListener());
+      homePanel.createPanel(p,new RemoveStocksListener() ,new AddWatchListener(),new RefreshListener());
 
     }
 
@@ -155,7 +147,6 @@ public class FolioTracker {
     public void mouseClicked(MouseEvent e) {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
 
-
       currentSelected=(FolioPanel)homePanel.getSelectedComponent();
       System.out.println("the selected name" + currentSelected.getName());
     }
@@ -178,7 +169,6 @@ public class FolioTracker {
 
   }
 
-
   public class ClearListener implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -187,57 +177,84 @@ public class FolioTracker {
   }
 
 
-  public class AddStockListener implements  ActionListener{
+  public class AddStockListener implements  ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-       int validTicker = 0;
+
       String ticker = addWatchWindow.getTicker();
       String amount = String.valueOf(addWatchWindow.getEnteredAmount());
 
-      if(ticker.equals("")){
-        JOptionPane.showMessageDialog(null, "This isnt valid!!");
-      }
 
-
-      String cost = "";
 
       try {
-        cost = StrathQuoteServer.getLastValue(ticker);
+        String cost = StrathQuoteServer.getLastValue(ticker);
+        StockHolding stock = new StockHolding(ticker, ticker, Integer.parseInt(amount), Double.parseDouble(cost));
 
-      } catch (WebsiteDataException e1) {
-        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
-        validTicker = 1;
-      } catch (NoSuchTickerException e1) {
-        validTicker = 1;
-        JOptionPane.showMessageDialog(null, "in  folio tracker This isnt valid!!");
+        //TODO we need to store somewhere as a localvariable
+
+        if (!ticker.equals("")) {
+
+          Portfolio portfolio = portfolioMap.get(currentSelected.getName());
+          if (portfolio.getStockList().contains(stock)) {
+            int reply = JOptionPane.showConfirmDialog(null,
+                    "This portfolio already tracking this stock. Would you like to update it?",
+                    "Already exist", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+              portfolio.addStock(stock);
+              currentSelected.tableModel.fireTableChangeOnAddRow();
+              addWatchWindow.dispose();
+            }
+          } else {
+            portfolio.addStock(stock);
+            currentSelected.tableModel.fireTableChangeOnAddRow();
+            addWatchWindow.dispose();
+          }
+        }
+
+      } catch (WebsiteDataException | NoSuchTickerException e1) {
+        JOptionPane.showMessageDialog(null, "This isn't a valid ticker!!");
       }
-      addWatchWindow.dispose();
+    }
+  }
 
-      String stockEntry[] = new String[4];
 
-      stockEntry[0] = ticker;
-      stockEntry[1] = amount;
-      stockEntry[2] = cost;
-      stockEntry[3] = String.valueOf(homePanel.getSelectedIndex());
 
-      //TODO we need to store somewhere as a localvariable
 
-      if(!ticker.equals("") || validTicker == 0){
-      System.out.println(currentSelected);
-      portfolioMap.get(currentSelected.getName()).addStock(stockEntry);
-      currentSelected.tableModel.fireTableChangeOnAddRow();
+  public class RemoveStocksListener implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int selectedRow = currentSelected.getTable().getSelectedRow();
+      if(selectedRow>-1) {
+        int stockIndex = currentSelected.getTable().convertRowIndexToModel(selectedRow);
+        StockHolding stock = currentSelected.tableModel.getTableModelStockList().get(stockIndex);
 
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want  portfolio <" + currentSelected.getName() + "> to stop tracking <" + stock.getTicker() + ">?",
+                "Remove stock", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+          Portfolio portfolio = portfolioMap.get(currentSelected.getName());
+          portfolio.removeStock(stock.getName());
+          currentSelected.tableModel.fireTableChangeOnAddRow();
+        }
+      }else{
+        JOptionPane.showMessageDialog(null, "No stock was selected!");
       }
+
 
     }
   }
+
 
   public class AddWatchListener implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e){
       addWatchWindow.setVisible(true);
+      addWatchWindow.onEnter();
+      addWatchWindow.clear();
     }
   }
+
+
 
   public class RefreshListener implements ActionListener{
     @Override
@@ -245,9 +262,7 @@ public class FolioTracker {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
         currentSelected.tableModel.fireTableChangeOnAddRow();
-      } catch (WebsiteDataException ex) {
-        ex.printStackTrace();
-      } catch (NoSuchTickerException ex) {
+      } catch (WebsiteDataException | NoSuchTickerException ex) {
         ex.printStackTrace();
       }
     }
