@@ -11,26 +11,33 @@ import java.util.TimerTask;
 public class AutoRefresh {
 
 
-    public AutoRefresh(FolioTracker folioTracker) {
+    public AutoRefresh(FolioTracker folioTracker, Account account) {
 
         Timer timer = new Timer();
-        timer.schedule(new RemindTask(folioTracker), 0, //initial delay
+        timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay
                 20000); //subsequent rate
     }
 
     static class RemindTask extends TimerTask {
         boolean autoRefresh = true;
         FolioTracker folioTracker;
-        RemindTask(FolioTracker folioTracker) {
+        Account account;
+
+        RemindTask(FolioTracker folioTracker, Account account) {
             this.folioTracker = folioTracker;
+            this.account = account;
         }
+
         public void run() {
-            if ( autoRefresh ) {
+            if (autoRefresh) {
 
                 try {
-                    folioTracker.portfolioMap.get(folioTracker.currentSelected.getName()).refreshStocks();
-                    folioTracker.currentSelected.tableModel.fireTableChangeOnAddRow();
-                } catch (WebsiteDataException | NoSuchTickerException ex) {
+                    if (!folioTracker.portfolioMap.isEmpty() && folioTracker.currentSelected!=null) {
+                        if (folioTracker.portfolioMap.get(folioTracker.currentSelected.getName()).refreshStocks()) {
+                            account.savePortfolio(folioTracker.currentSelected.getName());
+                        }
+                    }
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
 
