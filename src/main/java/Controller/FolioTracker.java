@@ -4,12 +4,10 @@ import Model.*;
 import View.*;
 
 
+import javax.sound.sampled.Port;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +18,8 @@ import java.util.regex.Pattern;
 public class FolioTracker {
   // Create instances of the model and other controllers
   private File file;
+  private Account account;
+  private FolioTracker instance;
   //private CustomFileParser parser;
   //private Player player;
 
@@ -34,13 +34,9 @@ public class FolioTracker {
   public HomePanel homePanel;
 
 
+  public HashMap<String, Portfolio> portfolioMap = new HashMap<>();
 
-  public HashMap<String, Portfolio> portfolioMap=new HashMap<>();
-
-  public FolioPanel currentSelected = null;
-
-
-
+  public FolioPanel currentSelected;
 
 
   //private HomePanel menu;
@@ -51,13 +47,46 @@ public class FolioTracker {
    * Construct display and set up login
    *************************************/
 
-  public FolioTracker(){
-    this.view=new MainWindow();
-    view.addNewFolioListener(new FolioListener());
-    this.cardLayout=new CardLayout();
+  public FolioTracker() {
+    this.instance = this;
+    this.view = new MainWindow();
+    this.view.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+
+        if (account != null) {
+          int answer = JOptionPane.showConfirmDialog(view, "Would you like to save portfolios?");
+          if (answer == JOptionPane.OK_OPTION) {
+            for (Portfolio p : account.getPortfolioList()) {
+              try {
+                account.savePortfolio(p.getName());
+              } catch (Exception ex) {
+                ex.printStackTrace();
+              }
+            }
+            view.setVisible(false);
+            view.dispose();
+            System.exit(0);
+          } else if (answer == JOptionPane.NO_OPTION) {
+            view.setVisible(false);
+            view.dispose();
+            System.exit(0);
+          }
+        } else {
+          view.setVisible(false);
+          view.dispose();
+          System.exit(0);
+        }
+      }
+    });
+
+    view.addSavePortfolioListener(new SaveFolioListener());
+    view.addCreateNewPortfolioListener(new CreateNewPortfolioListener());
+    view.addRemovePortfolioListener(new RemovePortfolioListener());
+    this.cardLayout = new CardLayout();
     this.card = new JPanel(cardLayout);
 
-    this.welcomePanel=new WelcomePanel();
+    this.welcomePanel = new WelcomePanel();
     this.welcomePanel.addLoginListener(new WelcomeLoginListener());
     this.welcomePanel.addRegisterListener(new WelcomeRegisterListener());
 
@@ -65,11 +94,11 @@ public class FolioTracker {
     this.loginPanel.addActionListener(new LoginListener());
     this.loginPanel.addGoToWelcomePanelListener(new GoToWelcomePanelListener());
 
-    this.registerPanel= new RegisterPanel();
+    this.registerPanel = new RegisterPanel();
     this.registerPanel.addActionListener(new RegisterListener());
     this.registerPanel.addGoToWelcomePanelListener(new GoToWelcomePanelListener());
 
-    this.homePanel=new HomePanel( new TabMouseListener());
+    this.homePanel = new HomePanel(new TabMouseListener());
 
     //TODO add actionlisteners
 
@@ -84,31 +113,9 @@ public class FolioTracker {
     this.view.setVisible(true);
 
 
-    this.addWatchWindow=new AddWatchWindow();
+    this.addWatchWindow = new AddWatchWindow();
     this.addWatchWindow.addSaveActionListener(new AddStockListener());
     this.addWatchWindow.addClearActionListener(new ClearListener());
-
-
-
-
-
-    /**
-     * Test Code
-     */
-    Portfolio port1=new Portfolio("First");
-    Portfolio port2=new Portfolio("Second");
-
-    portfolioMap.put(port1.getName(),port1);
-    portfolioMap.put(port2.getName(),port2);
-
-
-    for(Portfolio p:portfolioMap.values()){
-      homePanel.createPanel(p,new RemoveStocksListener() ,new AddWatchListener(),new RefreshListener());
-
-    }
-
-
-    currentSelected=(FolioPanel) homePanel.getSelectedComponent();
 
 
   }
@@ -119,21 +126,21 @@ public class FolioTracker {
    *
    * Used for switching between windows, setting up what needs to be
    *****************************************************************/
-  public void displayHomePanel(){
-    cardLayout.show(card,"homePanel");
+  public void displayHomePanel() {
+    cardLayout.show(card, "homePanel");
   }
 
-  public void displayLogin(){
-    cardLayout.show(card,"loginPanel");
+  public void displayLogin() {
+    cardLayout.show(card, "loginPanel");
   }
 
-  public void displayRegister(){
-    cardLayout.show(card,"registerPanel");
-  }
-  public void displayWelcome(){
-    cardLayout.show(card,"welcomePanel");
+  public void displayRegister() {
+    cardLayout.show(card, "registerPanel");
   }
 
+  public void displayWelcome() {
+    cardLayout.show(card, "welcomePanel");
+  }
 
 
   /**************************************************************
@@ -142,13 +149,13 @@ public class FolioTracker {
    * Passed to the panels when the action listeners are created,
    * store variables and call above functions
    **************************************************************/
-  public class TabMouseListener implements MouseListener{
+  public class TabMouseListener implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
       // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
 
-      currentSelected=(FolioPanel)homePanel.getSelectedComponent();
-      System.out.println("the selected name" + currentSelected.getName());
+      currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+
     }
 
     @Override
@@ -169,7 +176,7 @@ public class FolioTracker {
 
   }
 
-  public class ClearListener implements ActionListener{
+  public class ClearListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       addWatchWindow.clear();
@@ -177,13 +184,12 @@ public class FolioTracker {
   }
 
 
-  public class AddStockListener implements  ActionListener {
+  public class AddStockListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
       String ticker = addWatchWindow.getTicker();
       String amount = String.valueOf(addWatchWindow.getEnteredAmount());
-
 
 
       try {
@@ -218,13 +224,11 @@ public class FolioTracker {
   }
 
 
-
-
   public class RemoveStocksListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       int selectedRow = currentSelected.getTable().getSelectedRow();
-      if(selectedRow>-1) {
+      if (selectedRow > -1) {
         int stockIndex = currentSelected.getTable().convertRowIndexToModel(selectedRow);
         StockHolding stock = currentSelected.tableModel.getTableModelStockList().get(stockIndex);
 
@@ -236,7 +240,7 @@ public class FolioTracker {
           portfolio.removeStock(stock.getName());
           currentSelected.tableModel.fireTableChangeOnAddRow();
         }
-      }else{
+      } else {
         JOptionPane.showMessageDialog(null, "No stock was selected!");
       }
 
@@ -245,9 +249,9 @@ public class FolioTracker {
   }
 
 
-  public class AddWatchListener implements ActionListener{
+  public class AddWatchListener implements ActionListener {
     @Override
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent e) {
       addWatchWindow.setVisible(true);
       addWatchWindow.onEnter();
       addWatchWindow.clear();
@@ -255,10 +259,9 @@ public class FolioTracker {
   }
 
 
-
-  public class RefreshListener implements ActionListener{
+  public class RefreshListener implements ActionListener {
     @Override
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent e) {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
         currentSelected.tableModel.fireTableChangeOnAddRow();
@@ -269,16 +272,61 @@ public class FolioTracker {
   }
 
 
-
-public class FolioListener implements ActionListener {
+  public class SaveFolioListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-
+      try {
+        if(currentSelected!=null) {
+          account.savePortfolio(currentSelected.getName());
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
     }
   }
 
 
-  public class RegisterListener implements ActionListener{
+  public class CreateNewPortfolioListener implements ActionListener {
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      String name = JOptionPane.showInputDialog("Please choose a name:");
+
+      if (name != null && !name.equals("")) {
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Do you want to create new portfolio <" + name + ">?",
+                "Create new...", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+          Portfolio portfolio = new Portfolio(name);
+          account.addPortfolio(portfolio);
+          portfolioMap.put(portfolio.getName(), portfolio);
+          currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+        }
+      }
+    }
+  }
+
+  public class RemovePortfolioListener implements ActionListener {
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(currentSelected!=null) {
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to delete <" + currentSelected.getName() + ">?",
+                "Delete " + currentSelected.getName() + "...", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+          homePanel.remove(currentSelected);
+          String result = account.removePortfolio(portfolioMap.get(currentSelected.getName())) ? "Portfolio file was deleted" : "Couldn't delete portfolios save file";
+          portfolioMap.remove(portfolioMap.get(currentSelected.getName()));
+          JOptionPane.showMessageDialog(null, result);
+          currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+        }
+      }
+    }
+  }
+
+
+  public class RegisterListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       view.ShowMenu();
@@ -292,11 +340,25 @@ public class FolioListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       view.ShowMenu();
+      //todo login account
+      account = new Account("test");
+
+      account.loadPortfolios();
+      for (Portfolio p : account.getPortfolioList()) {
+        portfolioMap.put(p.getName(), p);
+      }
+
+      for (Portfolio p : portfolioMap.values()) {
+        homePanel.createPanel(p, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+      }
+      currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+      new AutoRefresh(instance, account);
       displayHomePanel();
+
     }
   }
 
-  public class GoToWelcomePanelListener implements ActionListener{
+  public class GoToWelcomePanelListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       System.out.println("Go to Welcome Panel");
@@ -320,5 +382,8 @@ public class FolioListener implements ActionListener {
       displayLogin();
     }
   }
-
 }
+
+
+
+

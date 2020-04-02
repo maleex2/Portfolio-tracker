@@ -1,12 +1,20 @@
 package Controller;
 
+import Model.Account;
 import Model.AutoRefresh;
+import Model.Portfolio;
+import Model.StockHolding;
 
 import javax.swing.*;
 
 public class Main {
   public static void main(String[] args) {
     try { //Set default theme to nimbus if installed
+      /**
+       * Test stuff
+       *
+       */
+
       for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
         if ("Nimbus".equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
@@ -20,6 +28,6 @@ public class Main {
       }catch (Exception all){}
     }
     FolioTracker folioTracker=new FolioTracker();
-    new AutoRefresh(folioTracker);
+
   }
 }

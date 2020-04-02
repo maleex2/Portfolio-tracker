@@ -18,14 +18,16 @@ public class HomePanel extends JTabbedPane {
 
 
 
-  public void createPanel(Portfolio p,ActionListener removeStockActionListener ,ActionListener addWatchActionListener, ActionListener refreshActionListener) {
+  public FolioPanel createPanel(Portfolio p,ActionListener removeStockActionListener ,ActionListener addWatchActionListener, ActionListener refreshActionListener) {
     FolioPanel fp=new FolioPanel(p.getName(),p.getStockList());
     fp.addRemoveStockListener(removeStockActionListener);
     fp.addAddWatchListener(addWatchActionListener);
     fp.addRefreshListener(refreshActionListener);
     add(p.getName(),fp);
-
+    return fp;
     }
+
+
   }
 
 

@@ -63,9 +63,9 @@ public class Portfolio {
 
   }
 
-  public  void refreshStocks() throws NoSuchTickerException, WebsiteDataException {
+  public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException {
     System.out.println("refresh is called!");
-    int temp = 0;
+    boolean changed=false;
     for(StockHolding stock : list){
       double originalPPS = stock.getPricePerShare();
       double newPPS = 0;
@@ -77,13 +77,11 @@ public class Portfolio {
         System.out.println("Price changed");
         stock.setPricePerShare(newPPS);
         tableModel.fireTableDataChanged();
-
+        changed=true;
       }
 
-      temp++;
     }
-
-
+    return changed;
   }
 
   public double getTotalValue() {
