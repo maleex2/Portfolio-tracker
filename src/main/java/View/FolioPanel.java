@@ -44,7 +44,6 @@ public class FolioPanel extends JPanel {
   public FolioPanelTableModel tableModel;
   final AtomicInteger selectedRow=new AtomicInteger(-1);
   final AtomicInteger selectedCol=new AtomicInteger(-1);
-
   public FolioPanel(String name,List<StockHolding> data, CellEditorListener cellEditorListener){
     Component mySpinnerEditor = amountSpinner.getEditor();
     JFormattedTextField jftf = ((JSpinner.DefaultEditor) mySpinnerEditor).getTextField();

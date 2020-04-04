@@ -8,7 +8,7 @@ public class RegisterPanel extends JPanel {
   private JButton backBtn= new JButton("Back");
   private JLabel registerLabel = new JLabel("Username:");
   private JTextField promptField = new JTextField(10);
-  private JButton registerBtn = new JButton("Login");
+  private JButton registerBtn = new JButton("Register");
 
   public RegisterPanel()
   {
