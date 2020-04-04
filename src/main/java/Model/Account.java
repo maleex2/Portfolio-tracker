@@ -67,6 +67,7 @@ public class Account {
                 fw.close();
                 //Even after closing all the streams, the file wouldn't delete on request, but calling garbage collection helps
                 System.gc();
+                JOptionPane.showMessageDialog(null, "Folio saved successfully!");
 
             } catch (IOException ioe) {
                 System.err.println("IOException: " + ioe.getMessage());
