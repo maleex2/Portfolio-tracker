@@ -193,14 +193,18 @@ public class FolioTracker {
     public void actionPerformed(ActionEvent e) {
 
       String ticker = addWatchWindow.getTicker();
+      String name= addWatchWindow.getName();
       String amount = String.valueOf(addWatchWindow.getEnteredAmount());
 
 
       try {
         String cost = StrathQuoteServer.getLastValue(ticker);
-        StockHolding stock = new StockHolding(ticker, ticker, Integer.parseInt(amount), Double.parseDouble(cost));
+        if(name.equals("")){
+          name=ticker+"_stock";
+        }
+        StockHolding stock = new StockHolding(ticker, name, Integer.parseInt(amount), Double.parseDouble(cost));
 
-        //TODO we need to store somewhere as a localvariable
+
 
         if (!ticker.equals("")) {
 
@@ -221,9 +225,9 @@ public class FolioTracker {
           }
         }
 
-      } catch ( NoSuchTickerException e1) {
+      } catch ( NoSuchTickerException | WebsiteDataException e1) {
         JOptionPane.showMessageDialog(null, "This isn't a valid ticker!!");
-      }catch (WebsiteDataException e1){
+      }catch(WebsiteConnectionException e1){
         JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
@@ -271,9 +275,9 @@ public class FolioTracker {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
         currentSelected.tableModel.fireTableChangeOnAddRow();
-      } catch (NoSuchTickerException ex) {
+      } catch (NoSuchTickerException  | WebsiteDataException ex) {
         ex.printStackTrace();
-      }catch (WebsiteDataException ex){
+      }catch (WebsiteConnectionException ex){
         JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
@@ -316,6 +320,8 @@ public class FolioTracker {
             JOptionPane.showMessageDialog(null, "Portfolio with given name already exist");
           }
         }
+      }else{
+        JOptionPane.showMessageDialog(null, "Please enter the name for portfolio");
       }
     }
   }

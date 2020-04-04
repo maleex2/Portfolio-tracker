@@ -121,7 +121,7 @@ public class FolioPanelTableModel extends AbstractTableModel {
 
   public boolean isCellEditable(int rowIndex, int columnIndex)
   {
-    if(columnIndex==1 ) {
+    if(columnIndex==1 || columnIndex==2 || columnIndex==3) {
       return true;
     }else{
       return false;

@@ -11,9 +11,11 @@ public class AddWatchWindow extends JFrame {
   String[] labels = {"Ticker: ", "Amount: "};
   private JLabel loginLabel = new JLabel("Ticker:",JLabel.TRAILING);
   private JTextField loginField = new JTextField(5);
+  private JLabel nameLabel = new JLabel("Name:",JLabel.TRAILING);
+  private JTextField nameField = new JTextField(5);
   private JLabel amountLabel = new JLabel("Amount:",JLabel.TRAILING);
-  SpinnerModel model = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-  JSpinner amountSpinner = new JSpinner(model);
+  private SpinnerModel model = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+  private JSpinner amountSpinner = new JSpinner(model);
   private JButton saveButton=new JButton("Add");
   private JButton clearButton=new JButton("Clear");
 
@@ -29,8 +31,11 @@ public class AddWatchWindow extends JFrame {
     setResizable(false);
     panel.add(loginLabel);
     panel.add(loginField);
+    panel.add(nameLabel);
+    panel.add(nameField);
     panel.add(amountLabel);
     panel.add(amountSpinner);
+
     panel.add(clearButton);
     panel.add(saveButton);
 
@@ -40,9 +45,9 @@ public class AddWatchWindow extends JFrame {
 
 
     SpringUtilities.makeCompactGrid(panel,
-            3, 2, //rows, cols
+            4, 2, //rows, cols
             6, 6,        //initX, initY
-            10, 30);
+            10, 10);
 
 
     this.add(panel);
@@ -64,6 +69,9 @@ public class AddWatchWindow extends JFrame {
   public String getTicker(){
     return loginField.getText();
   }
+  public String getName(){
+    return nameField.getText();
+  }
   public int getEnteredAmount(){
     return (int)amountSpinner.getValue();
   }
@@ -71,6 +79,7 @@ public class AddWatchWindow extends JFrame {
   public void clear(){
     loginField.setText("");
     amountSpinner.setValue(1);
+    nameField.setText("");
 
   }
 

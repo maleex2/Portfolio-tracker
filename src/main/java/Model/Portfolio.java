@@ -63,7 +63,7 @@ public class Portfolio {
 
   }
 
-  public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException {
+  public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException, WebsiteConnectionException {
     System.out.println("refresh is called!");
     boolean changed=false;
     for(StockHolding stock : list){

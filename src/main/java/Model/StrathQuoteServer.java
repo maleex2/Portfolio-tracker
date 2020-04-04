@@ -44,7 +44,7 @@ public class StrathQuoteServer {
    *           <br>
    */
   public static String getLastValue(String tickerSymbol)
-          throws WebsiteDataException, NoSuchTickerException {
+          throws WebsiteDataException, NoSuchTickerException, WebsiteConnectionException {
     _TOKEN1 = _TOKEN1a + tickerSymbol.toUpperCase() + _TOKEN1b;
     String strURLStart = _URL;
     URL urlWebPage = null;
@@ -58,7 +58,8 @@ public class StrathQuoteServer {
 
       brWebPage = new BufferedReader(isr);
     } catch (Exception e) {
-      throw new WebsiteDataException();
+      throw new WebsiteConnectionException();
+
     }
 
     // find the line with the stock quote on it
@@ -68,7 +69,7 @@ public class StrathQuoteServer {
       while (true) {
         strLine = brWebPage.readLine();
         if (strLine == null) {
-          throw new WebsiteDataException("Parse failed!");
+          throw new NoSuchTickerException("Parse failed!");
         }
         if (strLine.indexOf(_TOKEN1) != -1) {
           System.out.println("found token");
@@ -79,7 +80,7 @@ public class StrathQuoteServer {
 
       }
     } catch (IOException e) {
-      throw new WebsiteDataException();
+      throw new NoSuchTickerException();
     }
 
     // find the stock quote in the line
