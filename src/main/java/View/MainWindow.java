@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 public class MainWindow extends JFrame {
   private JMenuBar mb = new JMenuBar();
   private JMenu account, portfolio, more;
-  private JMenuItem save, createNew, delete,exit, help,about;
+  private JMenuItem save, createNew, delete,logout, help,about;
 
   /**********************************************************************************
    * Sets up the main window which will contain the layout which displays each panel
@@ -19,15 +19,15 @@ public class MainWindow extends JFrame {
     JFrame instance=this;
     //Account
     account = new JMenu("Account");
-    exit = new JMenuItem("Logout");
-    account.add(exit);
+    logout = new JMenuItem("Logout");
+    account.add(logout);
 
     portfolio= new JMenu("Portfolio");
-    save = new JMenuItem("Save...");
     createNew = new JMenuItem("Create new...");
+    save = new JMenuItem("Save...");
     delete= new JMenuItem("Delete...");
-    portfolio.add(save);
     portfolio.add(createNew);
+    portfolio.add(save);
     portfolio.add(delete);
 
     more = new JMenu("More..");
@@ -66,6 +66,22 @@ public class MainWindow extends JFrame {
   }
   public void addRemovePortfolioListener(ActionListener actionListener){
     delete.addActionListener(actionListener);
+  }
+
+  public void addLogOutListener(ActionListener actionListener){
+    logout.addActionListener(actionListener);
+  }
+
+  public void ResetActionListeners(){
+    for( ActionListener a : delete.getActionListeners() ) {
+      delete.removeActionListener( a );
+    }
+    for( ActionListener a : createNew.getActionListeners() ) {
+      createNew.removeActionListener( a );
+    }
+    for( ActionListener a : save.getActionListeners() ) {
+      save.removeActionListener( a );
+    }
   }
 
 

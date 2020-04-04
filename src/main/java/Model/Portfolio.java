@@ -97,6 +97,11 @@ public class Portfolio {
     return name;
   }
 
+  @Override
+  public boolean equals(Object o){
+    Portfolio portfolio=(Portfolio)o;
+    return this.name.toUpperCase().equals(portfolio.name.toUpperCase());
+  }
 }
 
 

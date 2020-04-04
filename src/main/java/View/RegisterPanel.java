@@ -23,6 +23,9 @@ public class RegisterPanel extends JPanel {
   {
     return promptField.getText();
   }
+  public void clearText(){
+    promptField.setText("");
+  }
 
   public void addGoToWelcomePanelListener(ActionListener goToWelcomePanelListener){
     backBtn.addActionListener(goToWelcomePanelListener);
