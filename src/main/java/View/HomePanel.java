@@ -3,6 +3,7 @@ package View;
 import Model.Portfolio;
 
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,10 +18,11 @@ public class HomePanel extends JTabbedPane {
   }
 
 
-  public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addWatchActionListener, ActionListener refreshActionListener) {
-    FolioPanel fp = new FolioPanel(p.getName(), p.getStockList());
+  public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addSaveActionListener, ActionListener addClearActionListener, ActionListener refreshActionListener, CellEditorListener cellEditorListener) {
+    FolioPanel fp = new FolioPanel(p.getName(), p.getStockList(), cellEditorListener);
     fp.addRemoveStockListener(removeStockActionListener);
-    fp.addAddWatchListener(addWatchActionListener);
+    fp.addSaveActionListener(addSaveActionListener);
+    fp.addClearActionListener(addClearActionListener);
     fp.addRefreshListener(refreshActionListener);
     add(p.getName(), fp);
     return fp;

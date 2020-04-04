@@ -1,1 +1,1 @@
-{"name":"123","list":[{"ticker":"msft","name":"msft_stock","shares":1,"pricePerShare":153.83,"totalValue":153.83,"latestUpdate":"Apr 4, 2020 5:24:40 PM","lastValue":160.0}]}
+{"name":"123","list":[{"ticker":"msft","name":"msft_stock","shares":1,"pricePerShare":153.83,"totalValue":153.83,"latestUpdate":"Apr 4, 2020 5:24:40 PM","lastValue":160.0},{"ticker":"orcl","name":"232","shares":1,"pricePerShare":49.4,"totalValue":49.4,"latestUpdate":"Apr 4, 2020 5:29:06 PM","lastValue":60.0}]}

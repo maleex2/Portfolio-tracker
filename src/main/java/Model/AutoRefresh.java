@@ -2,6 +2,7 @@ package Model;
 
 
 import Controller.FolioTracker;
+import View.FolioPanel;
 
 import java.awt.Toolkit;
 import java.util.Timer;
@@ -39,6 +40,7 @@ public class AutoRefresh {
                 try {
                     if (!folioTracker.portfolioMap.isEmpty() && folioTracker.currentSelected!=null) {
                         Portfolio portfolio=folioTracker.portfolioMap.get(folioTracker.currentSelected.getName());
+                        folioTracker.currentSelected.setTotalValue(portfolio.getTotalValue());
                         if (portfolio.refreshStocks()) {
                             if(account.isPortfolioSaved(portfolio)) {
                                 account.savePortfolio(folioTracker.currentSelected.getName());

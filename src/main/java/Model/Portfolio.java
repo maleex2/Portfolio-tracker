@@ -85,8 +85,12 @@ public class Portfolio {
   }
 
   public double getTotalValue() {
-   //TODO calculate and return the total number of all total values from all the stocks in a list
-    return 0;
+    double totalValue = 0;
+    for (StockHolding stock : list) {
+      totalValue += stock.getTotalValue();
+    }
+    return totalValue;
+
   }
 
   public List<StockHolding> getStockList(){

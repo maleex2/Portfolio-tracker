@@ -6,6 +6,8 @@ import View.*;
 
 import javax.sound.sampled.Port;
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
@@ -27,7 +29,7 @@ public class FolioTracker {
 
   // Create instances for each of GUI panels
   private MainWindow view;
-  private AddWatchWindow addWatchWindow;
+  //private AddWatchWindow addWatchWindow;
   private JPanel card;
   private CardLayout cardLayout;
   private WelcomePanel welcomePanel;
@@ -116,9 +118,9 @@ public class FolioTracker {
     this.view.setVisible(true);
 
 
-    this.addWatchWindow = new AddWatchWindow();
-    this.addWatchWindow.addSaveActionListener(new AddStockListener());
-    this.addWatchWindow.addClearActionListener(new ClearListener());
+    //this.addWatchWindow = new AddWatchWindow();
+    //this.addWatchWindow.addSaveActionListener(new AddStockListener());
+    //this.addWatchWindow.addClearActionListener(new ClearListener());
 
 
   }
@@ -183,7 +185,7 @@ public class FolioTracker {
   public class ClearListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      addWatchWindow.clear();
+      currentSelected.clear();
     }
   }
 
@@ -192,9 +194,9 @@ public class FolioTracker {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-      String ticker = addWatchWindow.getTicker();
-      String name= addWatchWindow.getName();
-      String amount = String.valueOf(addWatchWindow.getEnteredAmount());
+      String ticker = currentSelected.getEnteredTicker();
+      String name= currentSelected.getEnteredName();
+      String amount = String.valueOf(currentSelected.getEnteredAmount());
 
 
       try {
@@ -204,10 +206,7 @@ public class FolioTracker {
         }
         StockHolding stock = new StockHolding(ticker, name, Integer.parseInt(amount), Double.parseDouble(cost));
 
-
-
         if (!ticker.equals("")) {
-
           Portfolio portfolio = portfolioMap.get(currentSelected.getName());
           if (portfolio.getStockList().contains(stock)) {
             int reply = JOptionPane.showConfirmDialog(null,
@@ -216,13 +215,16 @@ public class FolioTracker {
             if (reply == JOptionPane.YES_OPTION) {
               portfolio.addStock(stock);
               currentSelected.tableModel.fireTableChangeOnAddRow();
-              addWatchWindow.dispose();
+              System.out.println("setting to "+portfolio.getTotalValue());
+              currentSelected.setTotalValue(portfolio.getTotalValue());
             }
           } else {
             portfolio.addStock(stock);
+            System.out.println("setting to "+portfolio.getTotalValue());
+            currentSelected.setTotalValue(portfolio.getTotalValue());
             currentSelected.tableModel.fireTableChangeOnAddRow();
-            addWatchWindow.dispose();
           }
+          currentSelected.clear();
         }
 
       } catch ( NoSuchTickerException | WebsiteDataException e1) {
@@ -259,14 +261,7 @@ public class FolioTracker {
   }
 
 
-  public class AddWatchListener implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      addWatchWindow.setVisible(true);
-      addWatchWindow.onEnter();
-      addWatchWindow.clear();
-    }
-  }
+
 
 
   public class RefreshListener implements ActionListener {
@@ -313,7 +308,8 @@ public class FolioTracker {
           Portfolio portfolio = new Portfolio(name);
           if(account.addPortfolio(portfolio)) {
             portfolioMap.put(portfolio.getName(), portfolio);
-            currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+            //public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addSaveActionListener, ActionListener addClearActionListener, ActionListener refreshActionListener) {
+            currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
             homePanel.setSelectedComponent(currentSelected);
             JOptionPane.showMessageDialog(null, "New portfolio was created.");
           }else{
@@ -384,9 +380,11 @@ public class FolioTracker {
           portfolioMap.put(p.getName(), p);
         }
         for (Portfolio p : portfolioMap.values()) {
-          homePanel.createPanel(p, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+          homePanel.createPanel(p, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
         }
         currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+        System.out.println("Setting__to "+portfolioMap.get(currentSelected.getName()).getTotalValue());
+        currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
         autoRefresh= new AutoRefresh(instance, account);
         displayHomePanel();
         view.ShowMenu();
@@ -424,6 +422,18 @@ public class FolioTracker {
     }
   }
 
+  public class UpdateTotalOnEdit implements CellEditorListener{
+
+    @Override
+    public void editingStopped(ChangeEvent e) {
+      currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+    }
+
+    @Override
+    public void editingCanceled(ChangeEvent e) {
+      currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+    }
+  }
 
   public class GoToWelcomePanelListener implements ActionListener {
     @Override
