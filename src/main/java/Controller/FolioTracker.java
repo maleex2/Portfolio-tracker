@@ -17,7 +17,9 @@ import java.util.regex.Pattern;
 
 public class FolioTracker {
   // Create instances of the model and other controllers
+  private AutoRefresh autoRefresh;
   private File file;
+  private AccountManager accountManager;
   private Account account;
   private FolioTracker instance;
   //private CustomFileParser parser;
@@ -31,7 +33,7 @@ public class FolioTracker {
   private WelcomePanel welcomePanel;
   private LoginPanel loginPanel;
   private RegisterPanel registerPanel;
-  public HomePanel homePanel;
+  private HomePanel homePanel;
 
 
   public HashMap<String, Portfolio> portfolioMap = new HashMap<>();
@@ -48,6 +50,7 @@ public class FolioTracker {
    *************************************/
 
   public FolioTracker() {
+    accountManager=new AccountManager();
     this.instance = this;
     this.view = new MainWindow();
     this.view.addWindowListener(new WindowAdapter() {
@@ -55,7 +58,7 @@ public class FolioTracker {
       public void windowClosing(WindowEvent e) {
 
         if (account != null) {
-          int answer = JOptionPane.showConfirmDialog(view, "Would you like to save portfolios?");
+          int answer = JOptionPane.showConfirmDialog(view, "Would you like to save any changes or any unsaved portfolios?");
           if (answer == JOptionPane.OK_OPTION) {
             for (Portfolio p : account.getPortfolioList()) {
               try {
@@ -79,10 +82,10 @@ public class FolioTracker {
         }
       }
     });
-
     view.addSavePortfolioListener(new SaveFolioListener());
     view.addCreateNewPortfolioListener(new CreateNewPortfolioListener());
     view.addRemovePortfolioListener(new RemovePortfolioListener());
+    view.addLogOutListener(new LogOutListener());
     this.cardLayout = new CardLayout();
     this.card = new JPanel(cardLayout);
 
@@ -97,8 +100,8 @@ public class FolioTracker {
     this.registerPanel = new RegisterPanel();
     this.registerPanel.addActionListener(new RegisterListener());
     this.registerPanel.addGoToWelcomePanelListener(new GoToWelcomePanelListener());
-
     this.homePanel = new HomePanel(new TabMouseListener());
+
 
     //TODO add actionlisteners
 
@@ -119,6 +122,7 @@ public class FolioTracker {
 
 
   }
+
 
 
   /*****************************************************************
@@ -217,8 +221,10 @@ public class FolioTracker {
           }
         }
 
-      } catch (WebsiteDataException | NoSuchTickerException e1) {
+      } catch ( NoSuchTickerException e1) {
         JOptionPane.showMessageDialog(null, "This isn't a valid ticker!!");
+      }catch (WebsiteDataException e1){
+        JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
   }
@@ -265,8 +271,10 @@ public class FolioTracker {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
         currentSelected.tableModel.fireTableChangeOnAddRow();
-      } catch (WebsiteDataException | NoSuchTickerException ex) {
+      } catch (NoSuchTickerException ex) {
         ex.printStackTrace();
+      }catch (WebsiteDataException ex){
+        JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
   }
@@ -278,6 +286,7 @@ public class FolioTracker {
       try {
         if(currentSelected!=null) {
           account.savePortfolio(currentSelected.getName());
+
         }
       } catch (Exception ex) {
         ex.printStackTrace();
@@ -298,9 +307,14 @@ public class FolioTracker {
                 "Create new...", JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION) {
           Portfolio portfolio = new Portfolio(name);
-          account.addPortfolio(portfolio);
-          portfolioMap.put(portfolio.getName(), portfolio);
-          currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+          if(account.addPortfolio(portfolio)) {
+            portfolioMap.put(portfolio.getName(), portfolio);
+            currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+            homePanel.setSelectedComponent(currentSelected);
+            JOptionPane.showMessageDialog(null, "New portfolio was created.");
+          }else{
+            JOptionPane.showMessageDialog(null, "Portfolio with given name already exist");
+          }
         }
       }
     }
@@ -329,8 +343,22 @@ public class FolioTracker {
   public class RegisterListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      view.ShowMenu();
-      displayHomePanel();
+      String name=registerPanel.getText();
+      if(name.length()<3){
+        JOptionPane.showMessageDialog(null, "Name should be at least 3 char long");
+      }else {
+        account=accountManager.registerAccount(name);
+
+        if(account==null){
+          JOptionPane.showMessageDialog(null, "This username has already been taken.");
+        }else {
+          JOptionPane.showMessageDialog(null, "Successfully registered!");
+          autoRefresh= new AutoRefresh(instance, account);
+          view.ShowMenu();
+          displayHomePanel();
+          registerPanel.clearText();
+        }
+      }
     }
   }
 
@@ -339,24 +367,57 @@ public class FolioTracker {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      view.ShowMenu();
-      //todo login account
-      account = new Account("test");
+      String name=loginPanel.getText();
+      account=accountManager.loginAccount(name);
+      if(account==null) {
+        JOptionPane.showMessageDialog(null, "Account was not found!");
+      }else {
 
-      account.loadPortfolios();
-      for (Portfolio p : account.getPortfolioList()) {
-        portfolioMap.put(p.getName(), p);
+        account.loadPortfolios();
+        for (Portfolio p : account.getPortfolioList()) {
+          portfolioMap.put(p.getName(), p);
+        }
+        for (Portfolio p : portfolioMap.values()) {
+          homePanel.createPanel(p, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+        }
+        currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+        autoRefresh= new AutoRefresh(instance, account);
+        displayHomePanel();
+        view.ShowMenu();
+        loginPanel.clearText();
       }
-
-      for (Portfolio p : portfolioMap.values()) {
-        homePanel.createPanel(p, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
-      }
-      currentSelected = (FolioPanel) homePanel.getSelectedComponent();
-      new AutoRefresh(instance, account);
-      displayHomePanel();
-
     }
   }
+
+  public class LogOutListener implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int answer = JOptionPane.showConfirmDialog(view, "Would you like to save any changes or any unsaved portfolios?");
+      if (answer == JOptionPane.OK_OPTION) {
+        for (Portfolio p : account.getPortfolioList()) {
+          try {
+            account.savePortfolio(p.getName());
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        }
+        homePanel.removeAll();
+        autoRefresh.Stop();
+        account = null;
+        portfolioMap.clear();
+        view.HideMenu();
+        displayWelcome();
+      } else if (answer == JOptionPane.NO_OPTION) {
+        homePanel.removeAll();
+        autoRefresh.Stop();
+        account = null;
+        portfolioMap.clear();
+        view.HideMenu();
+        displayWelcome();
+      }
+    }
+  }
+
 
   public class GoToWelcomePanelListener implements ActionListener {
     @Override

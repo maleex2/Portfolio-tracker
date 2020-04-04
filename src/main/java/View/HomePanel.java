@@ -12,23 +12,29 @@ import java.util.Map;
 public class HomePanel extends JTabbedPane {
 
 
-  public HomePanel(MouseListener mouseListener){
+  public HomePanel(MouseListener mouseListener) {
     this.addMouseListener(mouseListener);
   }
 
 
-
-  public FolioPanel createPanel(Portfolio p,ActionListener removeStockActionListener ,ActionListener addWatchActionListener, ActionListener refreshActionListener) {
-    FolioPanel fp=new FolioPanel(p.getName(),p.getStockList());
+  public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addWatchActionListener, ActionListener refreshActionListener) {
+    FolioPanel fp = new FolioPanel(p.getName(), p.getStockList());
     fp.addRemoveStockListener(removeStockActionListener);
     fp.addAddWatchListener(addWatchActionListener);
     fp.addRefreshListener(refreshActionListener);
-    add(p.getName(),fp);
+    add(p.getName(), fp);
     return fp;
-    }
-
-
   }
+
+  public void removeAll() {
+    int pointer = getTabCount() - 1;
+    while (pointer > -1) {
+      System.out.println("removing" + this.getComponentAt(pointer));
+      this.remove(this.getComponentAt(pointer));
+      pointer--;
+    }
+  }
+}
 
 
 

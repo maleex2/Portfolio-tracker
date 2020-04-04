@@ -9,13 +9,18 @@ import java.util.TimerTask;
 
 
 public class AutoRefresh {
-
+    private Timer timer;
 
     public AutoRefresh(FolioTracker folioTracker, Account account) {
 
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay
                 20000); //subsequent rate
+    }
+
+    public void Stop(){
+        timer.cancel();
+        timer.purge();
     }
 
     static class RemindTask extends TimerTask {
@@ -33,8 +38,11 @@ public class AutoRefresh {
 
                 try {
                     if (!folioTracker.portfolioMap.isEmpty() && folioTracker.currentSelected!=null) {
-                        if (folioTracker.portfolioMap.get(folioTracker.currentSelected.getName()).refreshStocks()) {
-                            account.savePortfolio(folioTracker.currentSelected.getName());
+                        Portfolio portfolio=folioTracker.portfolioMap.get(folioTracker.currentSelected.getName());
+                        if (portfolio.refreshStocks()) {
+                            if(account.isPortfolioSaved(portfolio)) {
+                                account.savePortfolio(folioTracker.currentSelected.getName());
+                            }
                         }
                     }
                 } catch (Exception ex) {

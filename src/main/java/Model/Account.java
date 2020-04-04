@@ -20,13 +20,33 @@ public class Account {
         this.username=username;
         this.folios=new ArrayList<>();
     }
-    public void addPortfolio(Portfolio folio){
-        if(!this.folios.contains(folio)) this.folios.add(folio);
+    public boolean addPortfolio(Portfolio folio){
+        if(!this.folios.contains(folio)) {
+            this.folios.add(folio);
+            return true;
+        }else{
+            return false;
+        }
     }
     public ArrayList<Portfolio> getPortfolioList(){
         return this.folios;
     }
-    public void savePortfolio(String folioName) throws Exception {
+
+    public boolean isPortfolioSaved(Portfolio portfolio) {
+        try (Stream<Path> walk = Files.walk(Paths.get(System.getProperty("user.dir")))) {
+            Optional<String> result = walk.map(Path::toString)
+                    .filter(f -> f.contains(username + "_" + portfolio.getName() + ".saveFile"))
+                    .findFirst();
+            walk.close();
+            System.gc();
+       return result.isPresent();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+        public void savePortfolio(String folioName) throws Exception {
         Portfolio toSave=null;
         for (Portfolio folio: folios) {
             if(folio.getName().equals(folioName)){
@@ -104,6 +124,7 @@ public class Account {
                                 e.printStackTrace();
                             }
                         }
+                        System.out.println(limit);
                         limit--;
                     }
                    //java.nio.file.Files.delete(file.toPath());
