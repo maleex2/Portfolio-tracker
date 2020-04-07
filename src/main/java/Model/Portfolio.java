@@ -71,14 +71,9 @@ public class Portfolio {
       double newPPS = 0;
       System.out.println("Getting value for "+stock.getTicker());
       newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
-
-
-      if(newPPS != originalPPS){
-        System.out.println("Price changed");
-        stock.setPricePerShare(newPPS);
-        tableModel.fireTableDataChanged();
-        changed=true;
-      }
+      stock.setPricePerShare(newPPS);
+      changed=true;
+      tableModel.fireTableDataChanged();
 
     }
     return changed;
@@ -99,6 +94,10 @@ public class Portfolio {
 
   public String getName(){
     return name;
+  }
+
+  public void addTableModel(FolioPanelTableModel tableModel){
+    this.tableModel=tableModel;
   }
 
   @Override

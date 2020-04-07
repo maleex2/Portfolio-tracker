@@ -41,7 +41,7 @@ public class FolioPanel extends JPanel {
   private JButton refresh=new JButton("Get Latest PPS");
   private JLabel totalLabel=new JLabel("Total Folio Value:",JLabel.TRAILING);
   private JLabel totalValue=new JLabel("");
-  public FolioPanelTableModel tableModel;
+  private FolioPanelTableModel tableModel;
   final AtomicInteger selectedRow=new AtomicInteger(-1);
   final AtomicInteger selectedCol=new AtomicInteger(-1);
   public FolioPanel(String name,List<StockHolding> data, CellEditorListener cellEditorListener){
@@ -138,6 +138,9 @@ public class FolioPanel extends JPanel {
     return (int)amountSpinner.getValue();
   }
 
+  public FolioPanelTableModel getTableModel(){
+    return this.tableModel;
+  }
   public void clear(){
     loginField.setText("");
     amountSpinner.setValue(1);

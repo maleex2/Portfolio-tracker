@@ -15,7 +15,7 @@ public class AutoRefresh {
     public AutoRefresh(FolioTracker folioTracker, Account account) {
 
         timer = new Timer();
-        timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay
+        timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay 20000);
                 20000); //subsequent rate
     }
 

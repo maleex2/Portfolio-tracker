@@ -81,7 +81,7 @@ public class FolioPanelTableModel extends AbstractTableModel {
         o=stockList.get(rowIndex).getPricePerShare();
         break;
       case 4:
-        if( stockList.get(rowIndex).growSinceLastTime() >0){
+        if(stockList.get(rowIndex).growSinceLastTime() >0){
           o=new ImageIcon(GREEN.getAbsolutePath());
         }else if(stockList.get(rowIndex).growSinceLastTime() <0){
           o=new ImageIcon(RED.getAbsolutePath());
@@ -114,6 +114,7 @@ public class FolioPanelTableModel extends AbstractTableModel {
         break;
       case 3:
         stockList.get(row).setPricePerShare((double)value);
+
         break;
     }
     fireTableDataChanged();
@@ -121,7 +122,7 @@ public class FolioPanelTableModel extends AbstractTableModel {
 
   public boolean isCellEditable(int rowIndex, int columnIndex)
   {
-    if(columnIndex==1 || columnIndex==2 || columnIndex==3) {
+    if(columnIndex==1 || columnIndex==2 || columnIndex==3 ) {
       return true;
     }else{
       return false;

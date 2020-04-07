@@ -214,7 +214,7 @@ public class FolioTracker {
                     "Already exist", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION) {
               portfolio.addStock(stock);
-              currentSelected.tableModel.fireTableChangeOnAddRow();
+              currentSelected.getTableModel().fireTableChangeOnAddRow();
               System.out.println("setting to "+portfolio.getTotalValue());
               currentSelected.setTotalValue(portfolio.getTotalValue());
             }
@@ -222,7 +222,7 @@ public class FolioTracker {
             portfolio.addStock(stock);
             System.out.println("setting to "+portfolio.getTotalValue());
             currentSelected.setTotalValue(portfolio.getTotalValue());
-            currentSelected.tableModel.fireTableChangeOnAddRow();
+            currentSelected.getTableModel().fireTableChangeOnAddRow();
           }
           currentSelected.clear();
         }
@@ -242,7 +242,7 @@ public class FolioTracker {
       int selectedRow = currentSelected.getTable().getSelectedRow();
       if (selectedRow > -1) {
         int stockIndex = currentSelected.getTable().convertRowIndexToModel(selectedRow);
-        StockHolding stock = currentSelected.tableModel.getTableModelStockList().get(stockIndex);
+        StockHolding stock = currentSelected.getTableModel().getTableModelStockList().get(stockIndex);
 
         int reply = JOptionPane.showConfirmDialog(null,
                 "Are you sure you want  portfolio <" + currentSelected.getName() + "> to stop tracking <" + stock.getTicker() + ">?",
@@ -250,7 +250,7 @@ public class FolioTracker {
         if (reply == JOptionPane.YES_OPTION) {
           Portfolio portfolio = portfolioMap.get(currentSelected.getName());
           portfolio.removeStock(stock.getName());
-          currentSelected.tableModel.fireTableChangeOnAddRow();
+          currentSelected.getTableModel().fireTableChangeOnAddRow();
         }
       } else {
         JOptionPane.showMessageDialog(null, "No stock was selected!");
@@ -269,7 +269,6 @@ public class FolioTracker {
     public void actionPerformed(ActionEvent e) {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
-        currentSelected.tableModel.fireTableChangeOnAddRow();
       } catch (NoSuchTickerException  | WebsiteDataException ex) {
         ex.printStackTrace();
       }catch (WebsiteConnectionException ex){
@@ -310,6 +309,7 @@ public class FolioTracker {
             portfolioMap.put(portfolio.getName(), portfolio);
             //public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addSaveActionListener, ActionListener addClearActionListener, ActionListener refreshActionListener) {
             currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
+            portfolio.addTableModel(currentSelected.getTableModel());
             homePanel.setSelectedComponent(currentSelected);
             JOptionPane.showMessageDialog(null, "New portfolio was created.");
           }else{
@@ -380,7 +380,8 @@ public class FolioTracker {
           portfolioMap.put(p.getName(), p);
         }
         for (Portfolio p : portfolioMap.values()) {
-          homePanel.createPanel(p, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
+          FolioPanel fp=homePanel.createPanel(p, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
+          p.addTableModel(fp.getTableModel());
         }
         currentSelected = (FolioPanel) homePanel.getSelectedComponent();
         System.out.println("Setting__to "+portfolioMap.get(currentSelected.getName()).getTotalValue());

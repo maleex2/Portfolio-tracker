@@ -56,9 +56,20 @@ public class StockHolding {
   }
 
   public void setPricePerShare(double pricePerShare) {
-    setLastValue(this.pricePerShare);
-    this.pricePerShare = pricePerShare;
-    setTotalValue();
+    if(pricePerShare==getPricePerShare()) {
+      //set correct time
+      if (new Timestamp(System.currentTimeMillis()).getTime() - latestUpdate.getTime() > (36*Math.pow(10,5))) {
+        setLastValue(this.pricePerShare);
+        this.pricePerShare = pricePerShare;
+        setTotalValue();
+        setLatestUpdate(new Timestamp(System.currentTimeMillis()));
+      }
+    }else{
+      setLastValue(this.pricePerShare);
+      this.pricePerShare = pricePerShare;
+      setTotalValue();
+      setLatestUpdate(new Timestamp(System.currentTimeMillis()));
+    }
   }
 
   public double getTotalValue() {
