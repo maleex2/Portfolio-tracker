@@ -149,8 +149,6 @@ public class FolioTracker {
   public class TabMouseListener implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
-
-
       currentSelected = (FolioPanel) homePanel.getSelectedComponent();
 
     }
@@ -377,8 +375,11 @@ public class FolioTracker {
           FolioPanel fp=homePanel.createPanel(p, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
           p.addTableModel(fp.getTableModel());
         }
+
         currentSelected = (FolioPanel) homePanel.getSelectedComponent();
-        currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+        if(currentSelected!=null) {
+          currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+        }
         autoRefresh= new AutoRefresh(instance, account);
         displayHomePanel();
         view.ShowMenu();
