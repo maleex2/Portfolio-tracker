@@ -98,10 +98,9 @@ public class Account {
         }
     }
 
+
     public boolean removePortfolio(Portfolio portfolio) {
 
-
-        System.out.println("searching for file "+username + "_" + portfolio.getName() + ".saveFile");
         try (Stream<Path> walk = Files.walk(Paths.get(System.getProperty("user.dir")))) {
             Optional<String> result = walk.map(Path::toString)
                     .filter(f -> f.contains(username + "_" + portfolio.getName() + ".saveFile"))
@@ -125,31 +124,15 @@ public class Account {
                                 e.printStackTrace();
                             }
                         }
-                        System.out.println(limit);
                         limit--;
                     }
-                   //java.nio.file.Files.delete(file.toPath());
                    return true;
-                   /*
-                    if(!deleted){
-                        System.gc();
-                        System.out.println("trying another way");
-
-                        deleted=file.delete();
-                        if(!deleted){
-                            System.out.println(file.canRead()+" "+file.canExecute()+" "+file.canWrite());
-                            System.out.println("DELETION FAILED");
-                        }
-
-                    }
-                    */
-
                 } catch (SecurityException e) {
-                    System.out.println(e);
+                    folios.remove(portfolio);
                     return false;
                 }
             }else{
-                System.out.println("File not found");
+                folios.remove(portfolio);
                 return false;
             }
         } catch (IOException e) {

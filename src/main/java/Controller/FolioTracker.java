@@ -3,17 +3,15 @@ package Controller;
 import Model.*;
 import View.*;
 
-
-import javax.sound.sampled.Port;
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.util.HashMap;
-import java.util.regex.Pattern;
+
 
 public class FolioTracker {
   // Create instances of the model and other controllers
@@ -22,28 +20,24 @@ public class FolioTracker {
   private AccountManager accountManager;
   private Account account;
   private FolioTracker instance;
-  //private CustomFileParser parser;
-  //private Player player;
+
 
   // Create instances for each of GUI panels
   private MainWindow view;
-  private AddWatchWindow addWatchWindow;
   private JPanel card;
   private CardLayout cardLayout;
   private WelcomePanel welcomePanel;
   private LoginPanel loginPanel;
   private RegisterPanel registerPanel;
   private HomePanel homePanel;
+  private TextWindow aboutWindow;
+  private TextWindow helpWindow;
 
 
   public HashMap<String, Portfolio> portfolioMap = new HashMap<>();
 
   public FolioPanel currentSelected;
 
-
-  //private HomePanel menu;
-  //private GamePanel game;
-  //private GameChoice gameChoice;
 
   /*************************************
    * Construct display and set up login
@@ -86,6 +80,8 @@ public class FolioTracker {
     view.addCreateNewPortfolioListener(new CreateNewPortfolioListener());
     view.addRemovePortfolioListener(new RemovePortfolioListener());
     view.addLogOutListener(new LogOutListener());
+    view.addAboutListener(new AboutListener());
+    view.addHelpListener(new HelpListener());
     this.cardLayout = new CardLayout();
     this.card = new JPanel(cardLayout);
 
@@ -102,8 +98,10 @@ public class FolioTracker {
     this.registerPanel.addGoToWelcomePanelListener(new GoToWelcomePanelListener());
     this.homePanel = new HomePanel(new TabMouseListener());
 
+    this.aboutWindow=new TextWindow("About","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam quis erat congue, semper ex id, laoreet tortor. Fusce sed ipsum vestibulum, rhoncus sem ac, volutpat nisl. Aenean sed nisl nec justo pulvinar tincidunt. Pellentesque eget sapien vitae metus mattis tempus sit amet eu risus. Quisque sit amet semper felis. Integer iaculis, arcu vitae pellentesque finibus, turpis erat cursus lectus, ac commodo ipsum quam ac erat. Aliquam nisi nisi, volutpat in justo at, vulputate ultricies justo. In pellentesque nunc blandit interdum aliquet. Integer libero turpis, ultrices a mattis nec, egestas et elit. Phasellus a lectus porttitor, sollicitudin dolor vel, accumsan risus. Sed in imperdiet diam. Quisque vitae interdum erat, vel dictum nulla. Aliquam in enim pulvinar, sagittis neque non, pellentesque lectus. Etiam tellus ligula, volutpat at hendrerit vel, feugiat ac purus.");
+    this.helpWindow=new TextWindow("Help","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam quis erat congue, semper ex id, laoreet tortor. Fusce sed ipsum vestibulum, rhoncus sem ac, volutpat nisl. Aenean sed nisl nec justo pulvinar tincidunt. Pellentesque eget sapien vitae metus mattis tempus sit amet eu risus. Quisque sit amet semper felis. Integer iaculis, arcu vitae pellentesque finibus, turpis erat cursus lectus, ac commodo ipsum quam ac erat. Aliquam nisi nisi, volutpat in justo at, vulputate ultricies justo. In pellentesque nunc blandit interdum aliquet. Integer libero turpis, ultrices a mattis nec, egestas et elit. Phasellus a lectus porttitor, sollicitudin dolor vel, accumsan risus. Sed in imperdiet diam. Quisque vitae interdum erat, vel dictum nulla. Aliquam in enim pulvinar, sagittis neque non, pellentesque lectus. Etiam tellus ligula, volutpat at hendrerit vel, feugiat ac purus.");
 
-    //TODO add actionlisteners
+
 
     this.card.add("welcomePanel", welcomePanel);
     this.card.add("loginPanel", loginPanel);
@@ -114,11 +112,6 @@ public class FolioTracker {
     this.cardLayout.show(card, "welcomePanel");
 
     this.view.setVisible(true);
-
-
-    this.addWatchWindow = new AddWatchWindow();
-    this.addWatchWindow.addSaveActionListener(new AddStockListener());
-    this.addWatchWindow.addClearActionListener(new ClearListener());
 
 
   }
@@ -156,7 +149,7 @@ public class FolioTracker {
   public class TabMouseListener implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
-      // TODO using selected index set the currentSelected to right portfolio, to correctly add stock later.
+
 
       currentSelected = (FolioPanel) homePanel.getSelectedComponent();
 
@@ -183,7 +176,7 @@ public class FolioTracker {
   public class ClearListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      addWatchWindow.clear();
+      currentSelected.clear();
     }
   }
 
@@ -192,18 +185,19 @@ public class FolioTracker {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-      String ticker = addWatchWindow.getTicker();
-      String amount = String.valueOf(addWatchWindow.getEnteredAmount());
+      String ticker = currentSelected.getEnteredTicker();
+      String name= currentSelected.getEnteredName();
+      String amount = String.valueOf(currentSelected.getEnteredAmount());
 
 
       try {
         String cost = StrathQuoteServer.getLastValue(ticker);
-        StockHolding stock = new StockHolding(ticker, ticker, Integer.parseInt(amount), Double.parseDouble(cost));
-
-        //TODO we need to store somewhere as a localvariable
+        if(name.equals("")){
+          name=ticker+"_stock";
+        }
+        StockHolding stock = new StockHolding(ticker, name, Integer.parseInt(amount), Double.parseDouble(cost));
 
         if (!ticker.equals("")) {
-
           Portfolio portfolio = portfolioMap.get(currentSelected.getName());
           if (portfolio.getStockList().contains(stock)) {
             int reply = JOptionPane.showConfirmDialog(null,
@@ -211,19 +205,20 @@ public class FolioTracker {
                     "Already exist", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION) {
               portfolio.addStock(stock);
-              currentSelected.tableModel.fireTableChangeOnAddRow();
-              addWatchWindow.dispose();
+              currentSelected.getTableModel().fireTableChangeOnAddRow();
+              currentSelected.setTotalValue(portfolio.getTotalValue());
             }
           } else {
             portfolio.addStock(stock);
-            currentSelected.tableModel.fireTableChangeOnAddRow();
-            addWatchWindow.dispose();
+            currentSelected.setTotalValue(portfolio.getTotalValue());
+            currentSelected.getTableModel().fireTableChangeOnAddRow();
           }
+          currentSelected.clear();
         }
 
-      } catch ( NoSuchTickerException e1) {
+      } catch ( NoSuchTickerException | WebsiteDataException e1) {
         JOptionPane.showMessageDialog(null, "This isn't a valid ticker!!");
-      }catch (WebsiteDataException e1){
+      }catch(WebsiteConnectionException e1){
         JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
@@ -236,7 +231,7 @@ public class FolioTracker {
       int selectedRow = currentSelected.getTable().getSelectedRow();
       if (selectedRow > -1) {
         int stockIndex = currentSelected.getTable().convertRowIndexToModel(selectedRow);
-        StockHolding stock = currentSelected.tableModel.getTableModelStockList().get(stockIndex);
+        StockHolding stock = currentSelected.getTableModel().getTableModelStockList().get(stockIndex);
 
         int reply = JOptionPane.showConfirmDialog(null,
                 "Are you sure you want  portfolio <" + currentSelected.getName() + "> to stop tracking <" + stock.getTicker() + ">?",
@@ -244,7 +239,7 @@ public class FolioTracker {
         if (reply == JOptionPane.YES_OPTION) {
           Portfolio portfolio = portfolioMap.get(currentSelected.getName());
           portfolio.removeStock(stock.getName());
-          currentSelected.tableModel.fireTableChangeOnAddRow();
+          currentSelected.getTableModel().fireTableChangeOnAddRow();
         }
       } else {
         JOptionPane.showMessageDialog(null, "No stock was selected!");
@@ -255,14 +250,7 @@ public class FolioTracker {
   }
 
 
-  public class AddWatchListener implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      addWatchWindow.setVisible(true);
-      addWatchWindow.onEnter();
-      addWatchWindow.clear();
-    }
-  }
+
 
 
   public class RefreshListener implements ActionListener {
@@ -270,10 +258,9 @@ public class FolioTracker {
     public void actionPerformed(ActionEvent e) {
       try {
         portfolioMap.get(currentSelected.getName()).refreshStocks();
-        currentSelected.tableModel.fireTableChangeOnAddRow();
-      } catch (NoSuchTickerException ex) {
+      } catch (NoSuchTickerException  | WebsiteDataException ex) {
         ex.printStackTrace();
-      }catch (WebsiteDataException ex){
+      }catch (WebsiteConnectionException ex){
         JOptionPane.showMessageDialog(null, "Problems connecting to the server!!");
       }
     }
@@ -285,8 +272,12 @@ public class FolioTracker {
     public void actionPerformed(ActionEvent e) {
       try {
         if(currentSelected!=null) {
-          account.savePortfolio(currentSelected.getName());
-
+          int reply = JOptionPane.showConfirmDialog(null,
+                  "Do you want to save changes made to portfolio <" + currentSelected.getName() + ">?",
+                  "Save changes...", JOptionPane.YES_NO_OPTION);
+          if(reply== JOptionPane.YES_OPTION) {
+            account.savePortfolio(currentSelected.getName());
+          }
         }
       } catch (Exception ex) {
         ex.printStackTrace();
@@ -300,21 +291,26 @@ public class FolioTracker {
     @Override
     public void actionPerformed(ActionEvent e) {
       String name = JOptionPane.showInputDialog("Please choose a name:");
-
-      if (name != null && !name.equals("")) {
-        int reply = JOptionPane.showConfirmDialog(null,
-                "Do you want to create new portfolio <" + name + ">?",
-                "Create new...", JOptionPane.YES_NO_OPTION);
-        if (reply == JOptionPane.YES_OPTION) {
-          Portfolio portfolio = new Portfolio(name);
-          if(account.addPortfolio(portfolio)) {
-            portfolioMap.put(portfolio.getName(), portfolio);
-            currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
-            homePanel.setSelectedComponent(currentSelected);
-            JOptionPane.showMessageDialog(null, "New portfolio was created.");
-          }else{
-            JOptionPane.showMessageDialog(null, "Portfolio with given name already exist");
+      if (name != null) {
+        if (!name.equals("")) {
+          int reply = JOptionPane.showConfirmDialog(null,
+                  "Do you want to create new portfolio <" + name + ">?",
+                  "Create new...", JOptionPane.YES_NO_OPTION);
+          if (reply == JOptionPane.YES_OPTION) {
+            Portfolio portfolio = new Portfolio(name);
+            if (account.addPortfolio(portfolio)) {
+              portfolioMap.put(portfolio.getName(), portfolio);
+              //public FolioPanel createPanel(Portfolio p, ActionListener removeStockActionListener, ActionListener addSaveActionListener, ActionListener addClearActionListener, ActionListener refreshActionListener) {
+              currentSelected = homePanel.createPanel(portfolio, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
+              portfolio.addTableModel(currentSelected.getTableModel());
+              homePanel.setSelectedComponent(currentSelected);
+              JOptionPane.showMessageDialog(null, "New portfolio was created.");
+            } else {
+              JOptionPane.showMessageDialog(null, "Portfolio with given name already exist");
+            }
           }
+        } else {
+          JOptionPane.showMessageDialog(null, "Please enter the name for portfolio");
         }
       }
     }
@@ -378,9 +374,11 @@ public class FolioTracker {
           portfolioMap.put(p.getName(), p);
         }
         for (Portfolio p : portfolioMap.values()) {
-          homePanel.createPanel(p, new RemoveStocksListener(), new AddWatchListener(), new RefreshListener());
+          FolioPanel fp=homePanel.createPanel(p, new RemoveStocksListener(), new AddStockListener(), new ClearListener(), new RefreshListener(), new UpdateTotalOnEdit());
+          p.addTableModel(fp.getTableModel());
         }
         currentSelected = (FolioPanel) homePanel.getSelectedComponent();
+        currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
         autoRefresh= new AutoRefresh(instance, account);
         displayHomePanel();
         view.ShowMenu();
@@ -418,11 +416,22 @@ public class FolioTracker {
     }
   }
 
+  public class UpdateTotalOnEdit implements CellEditorListener{
+
+    @Override
+    public void editingStopped(ChangeEvent e) {
+      currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+    }
+
+    @Override
+    public void editingCanceled(ChangeEvent e) {
+      currentSelected.setTotalValue(portfolioMap.get(currentSelected.getName()).getTotalValue());
+    }
+  }
 
   public class GoToWelcomePanelListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      System.out.println("Go to Welcome Panel");
       view.HideMenu();
       displayWelcome();
     }
@@ -431,7 +440,6 @@ public class FolioTracker {
   public class WelcomeRegisterListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      System.out.println("register");
       displayRegister();
     }
   }
@@ -439,10 +447,28 @@ public class FolioTracker {
   public class WelcomeLoginListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      System.out.println("login");
       displayLogin();
     }
   }
+
+  public class AboutListener implements ActionListener{
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      aboutWindow.setVisible(true);
+    }
+  }
+
+  public class HelpListener implements ActionListener{
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      helpWindow.setVisible(true);
+    }
+  }
+
+
+
 }
 
 

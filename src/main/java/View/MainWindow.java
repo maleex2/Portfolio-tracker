@@ -4,11 +4,17 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.Objects;
 
 public class MainWindow extends JFrame {
   private JMenuBar mb = new JMenuBar();
   private JMenu account, portfolio, more;
   private JMenuItem save, createNew, delete,logout, help,about;
+
+  private static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+  private static String imageFileName="testLogoSmall.png";
+  private static File stockImage = new File(Objects.requireNonNull(classLoader.getResource(imageFileName)).getFile());
 
   /**********************************************************************************
    * Sets up the main window which will contain the layout which displays each panel
@@ -16,7 +22,7 @@ public class MainWindow extends JFrame {
 
   public MainWindow() {
     super("FolioTracker");
-    JFrame instance=this;
+    this.setIconImage(new ImageIcon(stockImage.getAbsolutePath()).getImage());
     //Account
     account = new JMenu("Account");
     logout = new JMenuItem("Logout");
@@ -67,7 +73,10 @@ public class MainWindow extends JFrame {
   public void addRemovePortfolioListener(ActionListener actionListener){
     delete.addActionListener(actionListener);
   }
-
+  public void addAboutListener(ActionListener actionListener){about.addActionListener(actionListener);}
+ public void addHelpListener(ActionListener actionListener){
+    help.addActionListener(actionListener);
+ }
   public void addLogOutListener(ActionListener actionListener){
     logout.addActionListener(actionListener);
   }

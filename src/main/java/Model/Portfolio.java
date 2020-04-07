@@ -40,8 +40,6 @@ public class Portfolio {
 
 
   public void removeStock(String tickerName){
-    //TODO find stock in list by ticker and remove
-    System.out.println("remove is called");
     int removed = 0;
     List<StockHolding> toRemove = new ArrayList<StockHolding>();
 
@@ -63,30 +61,26 @@ public class Portfolio {
 
   }
 
-  public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException {
-    System.out.println("refresh is called!");
+  public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException, WebsiteConnectionException {
     boolean changed=false;
     for(StockHolding stock : list){
-      double originalPPS = stock.getPricePerShare();
       double newPPS = 0;
-      System.out.println("Getting value for "+stock.getTicker());
       newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
-
-
-      if(newPPS != originalPPS){
-        System.out.println("Price changed");
-        stock.setPricePerShare(newPPS);
-        tableModel.fireTableDataChanged();
-        changed=true;
-      }
+      stock.setPricePerShare(newPPS);
+      changed=true;
+      tableModel.fireTableDataChanged();
 
     }
     return changed;
   }
 
   public double getTotalValue() {
-   //TODO calculate and return the total number of all total values from all the stocks in a list
-    return 0;
+    double totalValue = 0;
+    for (StockHolding stock : list) {
+      totalValue += stock.getTotalValue();
+    }
+    return totalValue;
+
   }
 
   public List<StockHolding> getStockList(){
@@ -95,6 +89,10 @@ public class Portfolio {
 
   public String getName(){
     return name;
+  }
+
+  public void addTableModel(FolioPanelTableModel tableModel){
+    this.tableModel=tableModel;
   }
 
   @Override

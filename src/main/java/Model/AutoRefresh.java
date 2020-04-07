@@ -2,6 +2,7 @@ package Model;
 
 
 import Controller.FolioTracker;
+import View.FolioPanel;
 
 import java.awt.Toolkit;
 import java.util.Timer;
@@ -14,7 +15,7 @@ public class AutoRefresh {
     public AutoRefresh(FolioTracker folioTracker, Account account) {
 
         timer = new Timer();
-        timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay
+        timer.schedule(new RemindTask(folioTracker, account), 0, //initial delay 20000);
                 20000); //subsequent rate
     }
 
@@ -39,6 +40,7 @@ public class AutoRefresh {
                 try {
                     if (!folioTracker.portfolioMap.isEmpty() && folioTracker.currentSelected!=null) {
                         Portfolio portfolio=folioTracker.portfolioMap.get(folioTracker.currentSelected.getName());
+                        folioTracker.currentSelected.setTotalValue(portfolio.getTotalValue());
                         if (portfolio.refreshStocks()) {
                             if(account.isPortfolioSaved(portfolio)) {
                                 account.savePortfolio(folioTracker.currentSelected.getName());
@@ -50,8 +52,6 @@ public class AutoRefresh {
                 }
 
             } else {
-
-                System.out.println("Auto refresh was stopped.");
                 //timer.cancel(); //Not necessary because we call System.exit
                 System.exit(0); //Stops the AWT thread (and everything else)
             }

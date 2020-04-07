@@ -7,7 +7,7 @@ public class StockHolding {
   private String ticker;
   private String name;
   private int shares;
-  private double pricePerShare=0;
+  private double pricePerShare;
   private double totalValue;
   private Timestamp latestUpdate;
   private double lastValue;
@@ -16,7 +16,7 @@ public class StockHolding {
     setTicker(ticker);
     setName(name);
     setShares(shares);
-    setPricePerShare(pricePerShare);
+    setPricePerShareInitial(pricePerShare);
     setLatestUpdate(new Timestamp(System.currentTimeMillis()));
 
   }
@@ -49,10 +49,27 @@ public class StockHolding {
     return pricePerShare;
   }
 
-  public void setPricePerShare(double pricePerShare) {
-    setLastValue(this.pricePerShare);
+  public void setPricePerShareInitial(double pricePerShare){
     this.pricePerShare = pricePerShare;
+    setLastValue(this.pricePerShare);
     setTotalValue();
+  }
+
+  public void setPricePerShare(double pricePerShare) {
+    if(pricePerShare==getPricePerShare()) {
+      //set correct time
+      if (new Timestamp(System.currentTimeMillis()).getTime() - latestUpdate.getTime() > (36*Math.pow(10,5))) {
+        setLastValue(this.pricePerShare);
+        this.pricePerShare = pricePerShare;
+        setTotalValue();
+        setLatestUpdate(new Timestamp(System.currentTimeMillis()));
+      }
+    }else{
+      setLastValue(this.pricePerShare);
+      this.pricePerShare = pricePerShare;
+      setTotalValue();
+      setLatestUpdate(new Timestamp(System.currentTimeMillis()));
+    }
   }
 
   public double getTotalValue() {
@@ -74,36 +91,26 @@ public class StockHolding {
     lastValue=pricePerShare;
   }
 
+  public double getLastValue(){
+    return lastValue;
+  }
   public double growSinceLastTime(){
     return pricePerShare-lastValue;
   }
-  //TODO remove!
-  /***
-   * Utility stuff
-   */
+
+
   @Override
    public String toString(){
      return getTicker()+" "+getName()+" "+getShares()+" "+getPricePerShare()+" "+getTotalValue();
   }
 
-  /*
-   private String ticker;
-  private String name;
-  private int shares;
-  private double pricePerShare=0;
-  private double totalValue;
-  private Timestamp latestUpdate;
-  private double lastValue;
-   */
-
 
   @Override
   public boolean equals(Object o){
-    StockHolding stock=(StockHolding)o;
-    if(this.ticker.compareTo(stock.ticker)==0){
-      if(this.name.compareTo(stock.name)==0){
-          return this.pricePerShare == stock.pricePerShare;
-
+    if(o.getClass()==StockHolding.class) {
+      StockHolding stock = (StockHolding) o;
+      if (this.ticker.equals(stock.ticker)) {
+        return this.pricePerShare == stock.pricePerShare;
       }
     }
     return false;
