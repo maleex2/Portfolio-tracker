@@ -43,7 +43,7 @@ public class AutoRefresh {
                         folioTracker.currentSelected.setTotalValue(portfolio.getTotalValue());
                         if (portfolio.refreshStocks()) {
                             if(account.isPortfolioSaved(portfolio)) {
-                                account.savePortfolio(folioTracker.currentSelected.getName());
+                                account.savePortfolio(folioTracker.currentSelected.getName(),true);
                             }
                         }
                     }

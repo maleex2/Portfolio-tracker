@@ -56,7 +56,7 @@ public class FolioTracker {
           if (answer == JOptionPane.OK_OPTION) {
             for (Portfolio p : account.getPortfolioList()) {
               try {
-                account.savePortfolio(p.getName());
+                account.savePortfolio(p.getName(), true);
               } catch (Exception ex) {
                 ex.printStackTrace();
               }
@@ -276,7 +276,7 @@ public class FolioTracker {
                   "Do you want to save changes made to portfolio <" + currentSelected.getName() + ">?",
                   "Save changes...", JOptionPane.YES_NO_OPTION);
           if(reply== JOptionPane.YES_OPTION) {
-            account.savePortfolio(currentSelected.getName());
+            account.savePortfolio(currentSelected.getName(), false);
           }
         }
       } catch (Exception ex) {
@@ -394,7 +394,7 @@ public class FolioTracker {
       if (answer == JOptionPane.OK_OPTION) {
         for (Portfolio p : account.getPortfolioList()) {
           try {
-            account.savePortfolio(p.getName());
+            account.savePortfolio(p.getName(),false);
           } catch (Exception ex) {
             ex.printStackTrace();
           }

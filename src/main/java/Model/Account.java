@@ -46,7 +46,8 @@ public class Account {
         }
         return false;
     }
-        public void savePortfolio(String folioName) throws Exception {
+
+        public void savePortfolio(String folioName, boolean initial) throws Exception {
         Portfolio toSave=null;
         for (Portfolio folio: folios) {
             if(folio.getName().equals(folioName)){
@@ -67,7 +68,9 @@ public class Account {
                 fw.close();
                 //Even after closing all the streams, the file wouldn't delete on request, but calling garbage collection helps
                 System.gc();
-                JOptionPane.showMessageDialog(null, "Folio saved successfully!");
+                if(!initial) {
+                    JOptionPane.showMessageDialog(null, "Folio saved successfully!");
+                }
 
             } catch (IOException ioe) {
                 System.err.println("IOException: " + ioe.getMessage());
