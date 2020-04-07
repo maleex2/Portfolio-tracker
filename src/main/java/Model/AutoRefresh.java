@@ -52,8 +52,6 @@ public class AutoRefresh {
                 }
 
             } else {
-
-                System.out.println("Auto refresh was stopped.");
                 //timer.cancel(); //Not necessary because we call System.exit
                 System.exit(0); //Stops the AWT thread (and everything else)
             }

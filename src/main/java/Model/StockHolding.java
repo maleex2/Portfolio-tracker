@@ -91,35 +91,28 @@ public class StockHolding {
     lastValue=pricePerShare;
   }
 
+  public double getLastValue(){
+    return lastValue;
+  }
   public double growSinceLastTime(){
     return pricePerShare-lastValue;
   }
-  //TODO remove!
-  /***
-   * Utility stuff
-   */
+
+
   @Override
    public String toString(){
      return getTicker()+" "+getName()+" "+getShares()+" "+getPricePerShare()+" "+getTotalValue();
   }
 
-  /*
-   private String ticker;
-  private String name;
-  private int shares;
-  private double pricePerShare=0;
-  private double totalValue;
-  private Timestamp latestUpdate;
-  private double lastValue;
-   */
-
 
   @Override
   public boolean equals(Object o){
-    StockHolding stock=(StockHolding)o;
-    if(this.ticker.equals(stock.ticker)){
-          return this.pricePerShare == stock.pricePerShare;
+    if(o.getClass()==StockHolding.class) {
+      StockHolding stock = (StockHolding) o;
+      if (this.ticker.equals(stock.ticker)) {
+        return this.pricePerShare == stock.pricePerShare;
       }
+    }
     return false;
   }
 }

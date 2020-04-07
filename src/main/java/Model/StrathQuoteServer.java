@@ -72,7 +72,6 @@ public class StrathQuoteServer {
           throw new NoSuchTickerException("Parse failed!");
         }
         if (strLine.indexOf(_TOKEN1) != -1) {
-          System.out.println("found token");
           brWebPage.readLine();
           strLine = brWebPage.readLine(); //move down two lines
           break;

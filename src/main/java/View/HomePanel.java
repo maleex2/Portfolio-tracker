@@ -31,7 +31,6 @@ public class HomePanel extends JTabbedPane {
   public void removeAll() {
     int pointer = getTabCount() - 1;
     while (pointer > -1) {
-      System.out.println("removing" + this.getComponentAt(pointer));
       this.remove(this.getComponentAt(pointer));
       pointer--;
     }

@@ -40,8 +40,6 @@ public class Portfolio {
 
 
   public void removeStock(String tickerName){
-    //TODO find stock in list by ticker and remove
-    System.out.println("remove is called");
     int removed = 0;
     List<StockHolding> toRemove = new ArrayList<StockHolding>();
 
@@ -64,12 +62,9 @@ public class Portfolio {
   }
 
   public  boolean refreshStocks() throws NoSuchTickerException, WebsiteDataException, WebsiteConnectionException {
-    System.out.println("refresh is called!");
     boolean changed=false;
     for(StockHolding stock : list){
-      double originalPPS = stock.getPricePerShare();
       double newPPS = 0;
-      System.out.println("Getting value for "+stock.getTicker());
       newPPS = Double.parseDouble(StrathQuoteServer.getLastValue(stock.getTicker()));
       stock.setPricePerShare(newPPS);
       changed=true;

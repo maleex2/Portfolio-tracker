@@ -19,11 +19,6 @@ public class FolioPanel extends JPanel {
   private String name;
   private JPanel mainCard = new JPanel(new BorderLayout(0, 40));
   private JPanel topControl=new JPanel();
-  /**
-   *
-   *
-   */
-
   private JLabel loginLabel = new JLabel("Ticker:",JLabel.TRAILING);
   private JTextField loginField = new JTextField(5);
   private JLabel nameLabel = new JLabel("Name:",JLabel.TRAILING);
