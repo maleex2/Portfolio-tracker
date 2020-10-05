@@ -87,10 +87,11 @@ public class PortfolioTest {
     portfolioInstance.addStock(testStock5);
 
     double storedValue = testStock5.getPricePerShare();
-    System.out.println();
+    System.out.println(storedValue);
     portfolioInstance.refreshStocks();
 
     double newValue =testStock5.getPricePerShare();
+    System.out.println(newValue);
     Assert.assertTrue(storedValue != newValue);
 
   }
