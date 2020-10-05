@@ -12,7 +12,7 @@ The Folio Tracker enables the user to track the contents and value of multiple s
   refresh the stock prices;
   see the total value of a portfolio;
   saving portfolio information to disk.
-  
-![Demo](j1.png)
-![Demo](j4.png)
-![Demo](j5.png)
+
+![Demo](j1.PNG)
+![Demo](j4.PNG)
+![Demo](j5.PNG)
